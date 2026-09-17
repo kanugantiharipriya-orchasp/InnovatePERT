@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="portfolio_risk_report" 
+              pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" 
+              whenNoDataType="AllSectionsNoDetail"
+              uuid="8f91b719-75f1-4c11-9252-9bc15f3a0444">
+
+    <!-- Report Parameters -->
+    <parameter name="title" class="java.lang.String"/>
+
+    <!-- Fields mapped from PortfolioRiskReportDTO -->
+    <field name="projectId" class="java.lang.Integer"/>
+    <field name="projectName" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    <field name="priority" class="java.lang.String"/>
+    <field name="managerName" class="java.lang.String"/>
+    <field name="targetDate" class="java.time.LocalDate"/>
+    <field name="expectedDuration" class="java.math.BigDecimal"/>
+    <field name="completionProbability" class="java.math.BigDecimal"/>
+    <field name="riskLevel" class="java.lang.String"/>
+
+    <title>
+        <band height="70" splitType="Stretch">
+            <!-- Header Banner -->
+            <rectangle radius="4">
+                <reportElement x="0" y="0" width="535" height="55" backcolor="#0F172A" uuid="9c91a03e-2fa1-449e-b9bb-2831b8162332"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+            <textField>
+                <reportElement x="10" y="10" width="515" height="24" forecolor="#FFFFFF" uuid="77f1b213-911e-4581-8b0b-6f4b3602d443"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title} != null ? $P{title} : "Portfolio-Wide Risk Assessment Report"]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="10" y="34" width="515" height="16" forecolor="#38BDF8" uuid="88f1b213-911e-4581-8b0b-6f4b3602d554"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Enterprise Risk Oversight Portfolio Document]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="28" splitType="Stretch">
+            <rectangle radius="2">
+                <reportElement x="0" y="2" width="535" height="22" backcolor="#F1F5F9" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c67"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="5" y="5" width="45" height="16" forecolor="#475569" uuid="b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d78"/>
+                <textElement><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="55" y="5" width="130" height="16" forecolor="#475569" uuid="c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e89"/>
+                <textElement><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Project Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="190" y="5" width="90" height="16" forecolor="#475569" uuid="d4e5f6a7-b89c-0d1e-2f3a-4b5c6d7e8f90"/>
+                <textElement><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Manager]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="285" y="5" width="65" height="16" forecolor="#475569" uuid="e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a01"/>
+                <textElement><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="355" y="5" width="55" height="16" forecolor="#475569" uuid="f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b12"/>
+                <textElement textAlignment="Center"><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Exp. (Days)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="415" y="5" width="60" height="16" forecolor="#475569" uuid="a7b8c9d0-1e2f-3a4b-5c6d-7e8f9a0b1c23"/>
+                <textElement textAlignment="Center"><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Probability]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="480" y="5" width="50" height="16" forecolor="#475569" uuid="b8c9d0e1-2f3a-4b5c-6d7e-8f9a0b1c2d34"/>
+                <textElement textAlignment="Center"><font size="8.5" isBold="true"/></textElement>
+                <text><![CDATA[Risk]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="24" splitType="Stretch">
+            <line>
+                <reportElement x="0" y="22" width="535" height="1" forecolor="#E2E8F0" uuid="c9d0e1f2-3a4b-5c6d-7e8f-9a0b1c2d3e45"/>
+                <graphicElement><pen lineWidth="0.5"/></graphicElement>
+            </line>
+            <textField>
+                <reportElement x="5" y="4" width="45" height="15" forecolor="#0F172A" uuid="d0e1f2a3-4b5c-6d7e-8f9a-0b1c2d3e4f56"/>
+                <textElement><font size="8.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{projectId} != null ? $F{projectId} : 0]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="55" y="4" width="130" height="15" forecolor="#0F172A" uuid="e1f2a3b4-5c6d-7e8f-9a0b-1c2d3e4f5a67"/>
+                <textElement><font size="8.5" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{projectName} != null ? $F{projectName} : "N/A"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="190" y="4" width="90" height="15" forecolor="#0F172A" uuid="f2a3b4c5-6d7e-8f9a-0b1c-2d3e4f5a6b78"/>
+                <textElement><font size="8.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{managerName} != null ? $F{managerName} : "Unassigned"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="285" y="4" width="65" height="15" forecolor="#2563EB" uuid="a3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c89"/>
+                <textElement><font size="8.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{status} != null ? $F{status} : "IN_PROGRESS"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="355" y="4" width="55" height="15" forecolor="#0F172A" uuid="b4c5d6e7-8f9a-0b1c-2d3e-4f5a6b7c8d90"/>
+                <textElement textAlignment="Center"><font size="8.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{expectedDuration} != null ? new java.text.DecimalFormat("#,##0.00").format($F{expectedDuration}) : "0.00"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="415" y="4" width="60" height="15" forecolor="#059669" uuid="c5d6e7f8-9a0b-1c2d-3e4f-5a6b7c8d9e01"/>
+                <textElement textAlignment="Center"><font size="8.5" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[($F{completionProbability} != null ? new java.text.DecimalFormat("#,##0.00").format($F{completionProbability}) : "0.00") + "%"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="480" y="4" width="50" height="15" forecolor="#0F172A" uuid="d6e7f8a9-0b1c-2d3e-4f5a-6b7c8d9e0f12"/>
+                <textElement textAlignment="Center"><font size="8.5" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{riskLevel} != null ? $F{riskLevel} : "N/A"]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+</jasperReport>

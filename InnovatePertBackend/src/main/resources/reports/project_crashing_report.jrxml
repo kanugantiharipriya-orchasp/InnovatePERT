@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="project_crashing_report" pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+
+    <property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+    <property name="net.sf.jasperreports.export.xls.ignore.page.margins" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.auto.fit.column" value="true"/>
+
+    <parameter name="title" class="java.lang.String"/>
+
+    <field name="priority" class="java.lang.Integer"/>
+    <field name="activityName" class="java.lang.String"/>
+    <field name="normalTime" class="java.lang.Double"/>
+    <field name="crashTime" class="java.lang.Double"/>
+    <field name="timeSaved" class="java.lang.Double"/>
+    <field name="normalCost" class="java.lang.Double"/>
+    <field name="crashCost" class="java.lang.Double"/>
+    <field name="additionalCost" class="java.lang.Double"/>
+    <field name="costSlope" class="java.lang.Double"/>
+    <field name="recommendation" class="java.lang.String"/>
+
+    <title>
+        <band height="70">
+            <rectangle radius="2">
+                <reportElement x="0" y="0" width="4" height="48" backcolor="#2563EB"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+
+            <textField>
+                <reportElement x="16" y="0" width="500" height="26" forecolor="#0F172A"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title} != null ? $P{title} : "Project Crashing & Cost Optimization Report"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="16" y="26" width="400" height="16" forecolor="#64748B"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="9" isBold="false"/>
+                </textElement>
+                <text><![CDATA[Enterprise Schedule Optimization & Crash Cost Report]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="24">
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="24" backcolor="#F1F5F9"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="5" y="4" width="30" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Prio]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="40" y="4" width="110" height="16" forecolor="#334155"/>
+                <textElement verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Activity Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="155" y="4" width="45" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Norm(d)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="205" y="4" width="45" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Crash(d)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="255" y="4" width="45" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Saved(d)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="305" y="4" width="55" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Norm Cost]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="365" y="4" width="55" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Extra Cost]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="425" y="4" width="55" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Slope/Day]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="485" y="4" width="45" height="16" forecolor="#334155"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="20">
+            <textField isBlankWhenNull="true">
+                <reportElement x="5" y="2" width="30" height="16"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{priority} != null ? $F{priority} : "-"]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="40" y="2" width="110" height="16"/>
+                <textElement verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{activityName}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="155" y="2" width="45" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{normalTime}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="205" y="2" width="45" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{crashTime}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="255" y="2" width="45" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{timeSaved}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="305" y="2" width="55" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{normalCost}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="365" y="2" width="55" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{additionalCost}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="425" y="2" width="55" height="16"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{costSlope}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="485" y="2" width="45" height="16"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{recommendation} != null ? $F{recommendation} : "Optional"]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+</jasperReport>

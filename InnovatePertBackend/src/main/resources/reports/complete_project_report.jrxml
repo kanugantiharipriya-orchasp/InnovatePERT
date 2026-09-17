@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="executive_project_pert_report" 
+              pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" 
+              whenNoDataType="AllSectionsNoDetail"
+              uuid="4e82b719-75f1-4c11-9252-9bc15f3a0112">
+
+    <!-- Project Level Parameters -->
+    <parameter name="projectId" class="java.lang.Integer"/>
+    <parameter name="projectName" class="java.lang.String"/>
+    <parameter name="description" class="java.lang.String"/>
+    <parameter name="status" class="java.lang.String"/>
+    <parameter name="priority" class="java.lang.String"/>
+    <parameter name="managerName" class="java.lang.String"/>
+    <parameter name="startDate" class="java.lang.String"/>
+    <parameter name="targetDate" class="java.lang.String"/>
+    <parameter name="budget" class="java.math.BigDecimal"/>
+    <parameter name="totalTasks" class="java.lang.Integer"/>
+    <parameter name="totalExpectedDuration" class="java.lang.Double"/>
+    <parameter name="totalVariance" class="java.lang.Double"/>
+    <parameter name="projectStandardDeviation" class="java.lang.Double"/>
+    <parameter name="showActivityDetails" class="java.lang.Boolean"/>
+
+    <!-- Fields from ActivityReportDTO -->
+    <field name="activityId" class="java.lang.Long"/>
+    <field name="activityName" class="java.lang.String"/>
+    <field name="description" class="java.lang.String"/>
+    <field name="optimisticTime" class="java.lang.Double"/>
+    <field name="mostLikelyTime" class="java.lang.Double"/>
+    <field name="pessimisticTime" class="java.lang.Double"/>
+    <field name="expectedTime" class="java.lang.Double"/>
+    <field name="normalCost" class="java.lang.Double"/>
+    <field name="status" class="java.lang.String"/>
+
+    <title>
+        <band height="550" splitType="Stretch">
+            <!-- Header Banner -->
+            <rectangle radius="4">
+                <reportElement x="0" y="0" width="535" height="50" backcolor="#1E293B" uuid="8c91a03e-2fa1-449e-b9bb-2831b8162201"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="10" y="10" width="515" height="30" forecolor="#FFFFFF" uuid="67f1b213-911e-4581-8b0b-6f4b3602d312"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[EXECUTIVE PROJECT STATUS & SCHEDULE RISK REPORT]]></text>
+            </staticText>
+
+            <!-- Project Details Section Box -->
+            <rectangle radius="4">
+                <reportElement x="0" y="58" width="535" height="90" backcolor="#F8FAFC" uuid="c2f0d912-32a1-42e1-801b-c19b21f3014a"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+
+            <!-- Metadata Column 1 -->
+            <staticText>
+                <reportElement x="15" y="66" width="95" height="18" forecolor="#475569" uuid="192a3b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Project Name:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="110" y="66" width="170" height="18" forecolor="#0F172A" uuid="2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{projectName} != null ? $P{projectName} : "N/A"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="15" y="88" width="95" height="18" forecolor="#475569" uuid="3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Priority Level:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="110" y="88" width="170" height="18" forecolor="#0F172A" uuid="4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d"/>
+                <textElement><font size="10"/></textElement>
+                <textFieldExpression><![CDATA[$P{priority} != null ? $P{priority} : "NORMAL"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="15" y="110" width="95" height="18" forecolor="#475569" uuid="5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Timeline:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="110" y="110" width="170" height="18" forecolor="#0F172A" uuid="6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d"/>
+                <textElement><font size="10"/></textElement>
+                <textFieldExpression><![CDATA[($P{startDate} != null ? $P{startDate} : "") + " to " + ($P{targetDate} != null ? $P{targetDate} : "")]]></textFieldExpression>
+            </textField>
+
+            <!-- Metadata Column 2 -->
+            <staticText>
+                <reportElement x="290" y="66" width="105" height="18" forecolor="#475569" uuid="7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Project Manager:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="395" y="66" width="125" height="18" forecolor="#0F172A" uuid="8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d"/>
+                <textElement><font size="10"/></textElement>
+                <textFieldExpression><![CDATA[$P{managerName} != null ? $P{managerName} : "N/A"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="290" y="88" width="105" height="18" forecolor="#475569" uuid="9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Status:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="395" y="88" width="125" height="18" forecolor="#2563EB" uuid="0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{status} != null ? $P{status} : "IN_PROGRESS"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="290" y="110" width="105" height="18" forecolor="#475569" uuid="1b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Total Budget:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="395" y="110" width="125" height="18" forecolor="#0F172A" uuid="2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e"/>
+                <textElement><font size="10"/></textElement>
+                <textFieldExpression><![CDATA[$P{budget} != null ? "$" + $P{budget}.toString() : "$0.00"]]></textFieldExpression>
+            </textField>
+
+            <!-- 4 EXECUTIVE METRIC CARDS -->
+            <!-- Card 1: Total Work Items -->
+            <rectangle radius="4">
+                <reportElement x="0" y="158" width="125" height="62" backcolor="#F1F5F9" uuid="3b4c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="2" y="164" width="121" height="14" forecolor="#475569" uuid="4b5c6d7e-8f9a-0b1c-2d3e-4f5a6b7c8d9e"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[TOTAL TASKS]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="2" y="180" width="121" height="26" forecolor="#0F172A" uuid="5b6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="15" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{totalTasks} != null ? $P{totalTasks} : 0]]></textFieldExpression>
+            </textField>
+
+            <!-- Card 2: Estimated Duration -->
+            <rectangle radius="4">
+                <reportElement x="135" y="158" width="130" height="62" backcolor="#F1F5F9" uuid="6c7d8e9f-0a1b-2c3d-4e5f-6a7b8c9d0e1f"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="137" y="164" width="126" height="14" forecolor="#475569" uuid="7d8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[EXPECTED DURATION]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="137" y="180" width="126" height="26" forecolor="#0F172A" uuid="8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="14" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[($P{totalExpectedDuration} != null ? String.format("%.2f", $P{totalExpectedDuration}) : "0.00") + " Days"]]></textFieldExpression>
+            </textField>
+
+            <!-- Card 3: Schedule Variance -->
+            <rectangle radius="4">
+                <reportElement x="275" y="158" width="125" height="62" backcolor="#F1F5F9" uuid="9f0a1b2c-3d4e-5f6a-7b8c-9d0e1f2a3b4c"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="277" y="164" width="121" height="14" forecolor="#475569" uuid="0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[SCHEDULE VARIANCE]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="277" y="180" width="121" height="26" forecolor="#0F172A" uuid="1b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="15" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[($P{totalVariance} != null && $P{totalVariance} > 0.0) 
+    ? String.format("%.2f", $P{totalVariance}) 
+    : ($P{projectStandardDeviation} != null 
+        ? String.format("%.2f", Math.pow($P{projectStandardDeviation}, 2)) 
+        : "0.00")]]></textFieldExpression>
+            </textField>
+
+            <!-- Card 4: Schedule Risk Deviation -->
+            <rectangle radius="4">
+                <reportElement x="410" y="158" width="125" height="62" backcolor="#F1F5F9" uuid="2c3d4e5f-6a7b-8c9d-0e1f-2a3b4c5d6e7f"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="412" y="164" width="121" height="14" forecolor="#475569" uuid="3d4e5f6a-7b8c-9d0e-1f2a-3b4c5d6e7f8a"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[RISK DEVIATION]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="412" y="180" width="121" height="26" forecolor="#0F172A" uuid="4e5f6a7b-8c9d-0e1f-2a3b-4c5d6e7f8a9b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="15" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{projectStandardDeviation} != null ? String.format("%.2f", $P{projectStandardDeviation}) : "0.00"]]></textFieldExpression>
+            </textField>
+
+            <!-- EXECUTIVE DEFINITIONS CARD -->
+            <rectangle radius="4">
+                <reportElement x="0" y="228" width="535" height="95" backcolor="#FFFFFF" uuid="5f6a7b8c-9d0e-1f2a-3b4c-5d6e7f8a9b0c"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#CBD5E1"/></graphicElement>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="12" y="234" width="510" height="18" forecolor="#1E293B" uuid="6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Key Performance & Schedule Risk Definitions]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="12" y="254" width="510" height="30" forecolor="#475569" uuid="7b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e"/>
+                <textElement><font size="9"/></textElement>
+                <text><![CDATA[• Schedule Variance: Reflects overall timeline uncertainty across project activities. Higher values signify broader variations between best-case and worst-case execution estimates.]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="12" y="286" width="510" height="30" forecolor="#475569" uuid="8c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f"/>
+                <textElement><font size="9"/></textElement>
+                <text><![CDATA[• Risk Deviation: Measures estimated schedule volatility around the targeted completion date. Lower values indicate higher confidence and predictable project delivery timelines.]]></text>
+            </staticText>
+
+            <!-- PROJECT DESCRIPTION SECTION USING A STRETCHING FRAME -->
+            <frame>
+                <reportElement x="0" y="331" width="535" height="130" isPrintWhenDetailOverflows="true" uuid="9d0e1f2a-3b4c-5d6e-7f8a-9b0c1d2e3f4a"/>
+                <box>
+                    <pen lineWidth="0.5" lineColor="#CBD5E1"/>
+                </box>
+                <rectangle radius="4">
+                    <reportElement x="0" y="0" width="535" height="130" backcolor="#F8FAFC" uuid="0e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b"/>
+                    <graphicElement><pen lineWidth="0.0"/></graphicElement>
+                </rectangle>
+                <staticText>
+                    <reportElement x="12" y="8" width="510" height="18" forecolor="#475569" uuid="1f2a3b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c"/>
+                    <textElement><font size="10" isBold="true"/></textElement>
+                    <text><![CDATA[Project Description:]]></text>
+                </staticText>
+                <textField textAdjust="StretchHeight">
+                    <reportElement x="12" y="30" width="510" height="90" forecolor="#0F172A" uuid="2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d"/>
+                    <textElement><font size="9.5"/></textElement>
+                    <textFieldExpression><![CDATA[$P{description} != null ? $P{description} : "No description provided."]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </title>
+
+    <!-- TABLE HEADER -->
+    <columnHeader>
+        <band height="30" splitType="Stretch">
+            <printWhenExpression><![CDATA[Boolean.TRUE.equals($P{showActivityDetails})]]></printWhenExpression>
+            
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="30" backcolor="#1E293B" uuid="3b4c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+            
+            <staticText>
+                <reportElement x="15" y="6" width="150" height="18" forecolor="#FFFFFF" uuid="4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f"/>
+                <textElement verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Activity Description]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="175" y="6" width="60" height="18" forecolor="#FFFFFF" uuid="5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Best Case]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="245" y="6" width="60" height="18" forecolor="#FFFFFF" uuid="6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Likely Case]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="315" y="6" width="60" height="18" forecolor="#FFFFFF" uuid="7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Worst Case]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="385" y="6" width="70" height="18" forecolor="#FFFFFF" uuid="8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Target Time]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="465" y="6" width="60" height="18" forecolor="#FFFFFF" uuid="9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <text><![CDATA[Cost ($)]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- DETAIL BAND -->
+    <detail>
+        <band height="26" splitType="Stretch">
+            <printWhenExpression><![CDATA[Boolean.TRUE.equals($P{showActivityDetails})]]></printWhenExpression>
+            
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="25" backcolor="#FFFFFF" uuid="0c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#E2E8F0"/></graphicElement>
+            </rectangle>
+
+            <textField>
+                <reportElement x="15" y="3" width="150" height="18" forecolor="#0F172A" uuid="1d2e3f4a-5b6c-7d8e-9f0a-1b2c3d4e5f6a"/>
+                <textElement verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{activityName} != null ? $F{activityName} : "N/A"]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="175" y="3" width="60" height="18" forecolor="#334155" uuid="2e3f4a5b-6c7d-8e9f-0a1b-2c3d4e5f6a7b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{optimisticTime} != null ? $F{optimisticTime} : 0.0]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="245" y="3" width="60" height="18" forecolor="#334155" uuid="3f4a5b6c-7d8e-9f0a-1b2c-3d4e5f6a7b8c"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{mostLikelyTime} != null ? $F{mostLikelyTime} : 0.0]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="315" y="3" width="60" height="18" forecolor="#334155" uuid="4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{pessimisticTime} != null ? $F{pessimisticTime} : 0.0]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="385" y="3" width="70" height="18" forecolor="#1E293B" uuid="5b6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9.5" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{expectedTime} != null ? $F{expectedTime} : 0.0]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="465" y="3" width="60" height="18" forecolor="#334155" uuid="6c7d8e9f-0a1b-2c3d-4e5f-6a7b8c9d0e1f"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="9.5"/></textElement>
+                <textFieldExpression><![CDATA[$F{normalCost} != null ? $F{normalCost} : 0.0]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>

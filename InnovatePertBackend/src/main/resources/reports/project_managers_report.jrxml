@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="project_managers_executive_report" pageWidth="595" pageHeight="842" columnWidth="535"
+              leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+
+    <!-- Advanced Excel Export Optimization Properties -->
+    <property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+    <property name="net.sf.jasperreports.export.xls.ignore.page.margins" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+    <property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+    <property name="net.sf.jasperreports.export.xls.auto.fit.column" value="true"/>
+
+    <parameter name="title" class="java.lang.String"/>
+
+    <field name="managerId" class="java.lang.Integer"/>
+    <field name="fullName" class="java.lang.String"/>
+    <field name="email" class="java.lang.String"/>
+    <field name="status" class="java.lang.String"/>
+    <field name="projectCount" class="java.lang.Integer"/>
+
+    <variable name="TOTAL_MANAGERS" class="java.lang.Integer" calculation="Count">
+        <variableExpression><![CDATA[$F{managerId}]]></variableExpression>
+    </variable>
+
+    <!-- HEADER / TITLE BAND -->
+    <title>
+        <band height="95">
+            <!-- Left Brand Accent Line -->
+            <rectangle radius="2">
+                <reportElement x="0" y="0" width="4" height="48" backcolor="#2563EB" uuid="11111111-0000-0000-0000-111111111111"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+
+            <!-- Main Report Title -->
+            <textField>
+                <reportElement x="16" y="0" width="340" height="26" forecolor="#0F172A" uuid="22222222-3333-4444-5555-666666666666"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="18" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title} != null ? $P{title} : "Project Managers Directory"]]></textFieldExpression>
+            </textField>
+            
+            <staticText>
+                <reportElement x="16" y="26" width="300" height="16" forecolor="#64748B" uuid="33333333-4444-5555-6666-777777777777"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="9" isBold="false"/>
+                </textElement>
+                <text><![CDATA[Enterprise Portfolio & Resource Performance Report]]></text>
+            </staticText>
+
+            <!-- Top Right Metadata Box -->
+            <rectangle radius="4">
+                <reportElement x="375" y="0" width="160" height="48" backcolor="#F8FAFC" uuid="44444444-5555-6666-7777-888888888888"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#E2E8F0"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="385" y="6" width="140" height="14" forecolor="#64748B" uuid="55555555-6666-7777-8888-999999999999"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[REPORT GENERATED]]></text>
+            </staticText>
+            <textField pattern="MMM dd, yyyy • HH:mm">
+                <reportElement x="385" y="24" width="140" height="16" forecolor="#0F172A" uuid="77777777-8888-9999-0000-111111111111"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+
+            <!-- Subtle Section Separator Line -->
+            <line>
+                <reportElement x="0" y="70" width="535" height="1" forecolor="#CBD5E1" uuid="88888888-0000-0000-0000-111111111111"/>
+                <graphicElement><pen lineWidth="0.75"/></graphicElement>
+            </line>
+        </band>
+    </title>
+
+    <!-- TABLE HEADER BAND -->
+    <columnHeader>
+        <band height="30">
+            <!-- Header Bar -->
+            <rectangle radius="3">
+                <reportElement x="0" y="0" width="535" height="26" backcolor="#0F172A" uuid="88888888-9999-0000-1111-222222222222"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="12" y="0" width="45" height="26" forecolor="#F8FAFC" uuid="99999999-0000-1111-2222-333333333333"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="57" y="0" width="143" height="26" forecolor="#F8FAFC" uuid="00000000-1111-2222-3333-444444444444"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[FULL NAME]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="200" y="0" width="180" height="26" forecolor="#F8FAFC" uuid="11111111-1111-1111-1111-111111111111"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[EMAIL ADDRESS]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="380" y="0" width="80" height="26" forecolor="#F8FAFC" uuid="22222222-2222-2222-2222-222222222222"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[STATUS]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="460" y="0" width="65" height="26" forecolor="#F8FAFC" uuid="33333333-3333-3333-3333-333333333333"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[PROJECTS]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- DATA DETAIL BAND -->
+    <detail>
+        <band height="24">
+            <!-- Alternating Zebra Background -->
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="24" backcolor="#F8FAFC" uuid="44444444-4444-4444-4444-444444444444">
+                    <printWhenExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></printWhenExpression>
+                </reportElement>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+
+            <!-- Bottom Border Line -->
+            <line>
+                <reportElement x="0" y="23" width="535" height="1" forecolor="#F1F5F9" uuid="55555555-5555-5555-5555-555555555555"/>
+            </line>
+
+            <textField>
+                <reportElement x="12" y="0" width="45" height="24" forecolor="#64748B" uuid="66666666-6666-6666-6666-666666666666"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA["#" + $F{managerId}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="57" y="0" width="143" height="24" forecolor="#0F172A" uuid="77777777-7777-7777-7777-777777777777"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{fullName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="200" y="0" width="180" height="24" forecolor="#334155" uuid="88888888-8888-8888-8888-888888888888"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8.5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="380" y="0" width="80" height="24" forecolor="#2563EB" uuid="99999999-9999-9999-9999-999999999999"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="460" y="0" width="65" height="24" forecolor="#0F172A" uuid="00000000-0000-0000-0000-000000000000"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8.5" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{projectCount} != null ? $F{projectCount} : 0]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- PAGE FOOTER -->
+    <pageFooter>
+        <band height="35">
+            <line>
+                <reportElement x="0" y="8" width="535" height="1" forecolor="#E2E8F0" uuid="dddddddd-eeee-ffff-0000-111111111111"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="15" width="220" height="15" forecolor="#94A3B8" uuid="eeeeeeee-ffff-0000-1111-222222222222"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <text><![CDATA[Confidential • Enterprise Management Portal]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="385" y="15" width="100" height="15" forecolor="#64748B" uuid="ffffffff-0000-1111-2222-333333333333"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="485" y="15" width="50" height="15" forecolor="#64748B" uuid="00000000-1111-2222-3333-444444444444"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <!-- EXECUTIVE SUMMARY KPI CARD -->
+    <summary>
+        <band height="55">
+            <!-- Executive Summary Container Box -->
+            <rectangle radius="4">
+                <reportElement x="0" y="15" width="535" height="35" backcolor="#F8FAFC" uuid="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#E2E8F0"/>
+                </graphicElement>
+            </rectangle>
+
+            <!-- Decorative Accent Line on Box -->
+            <rectangle radius="2">
+                <reportElement x="0" y="15" width="3" height="35" backcolor="#0F172A" uuid="bbbbbbbb-1111-2222-3333-444444444444"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="16" y="15" width="160" height="35" forecolor="#334155" uuid="bbbbbbbb-cccc-dddd-eeee-ffffffffffff"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Total Active Managers Listed:]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="176" y="15" width="100" height="35" forecolor="#2563EB" uuid="cccccccc-dddd-eeee-ffff-000000000000"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{TOTAL_MANAGERS}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+
+</jasperReport>
