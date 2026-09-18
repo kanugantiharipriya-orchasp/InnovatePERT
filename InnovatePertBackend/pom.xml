@@ -125,6 +125,13 @@
 	        <artifactId>jasperreports</artifactId>
 	        <version>6.20.6</version>
 	    </dependency>
+	    
+	    <!-- JasperReports Fonts (Required for Linux/Docker environments) -->
+	    <dependency>
+	        <groupId>net.sf.jasperreports</groupId>
+	        <artifactId>jasperreports-fonts</artifactId>
+	        <version>6.20.6</version>
+	    </dependency>
 	
 	    <!-- Apache POI for Excel Processing -->
 	    <dependency>

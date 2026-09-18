@@ -7,21 +7,27 @@ import org.springframework.stereotype.Service;
 
 import com.innovatepert.service.EmailService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
 	// Spring Boot automatically provides this bean because we added the
 	// spring-boot-starter-mail dependency
 	private final JavaMailSender mailSender;
 
+	@Value("${spring.mail.username}")
+	private String senderEmail;
+
 	@Override
     @Async
 	public void sendProjectManagerCredentials(String toEmail, String fullName, String temporaryPassword) {
 		SimpleMailMessage message = new SimpleMailMessage();
 
+		message.setFrom(senderEmail);
 		message.setTo(toEmail);
 		message.setSubject("Welcome to InnovatePERT - Login Credentials");
 		message.setText("Hello " + fullName + ",\n\n"
@@ -31,8 +37,12 @@ public class EmailServiceImpl implements EmailService {
 				+ "Please log in and change your password immediately.\n\n"
 				+ "Best Regards,\nInnovatePERT R&D Director");
 
-		mailSender.send(message);
-
+		try {
+			mailSender.send(message);
+			log.info("Successfully sent Project Manager credentials to {}", toEmail);
+		} catch (Exception e) {
+			log.error("Failed to send Project Manager credentials to {}. Error: {}", toEmail, e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -41,6 +51,7 @@ public class EmailServiceImpl implements EmailService {
 
         SimpleMailMessage message = new SimpleMailMessage();
 
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
 
         message.setSubject("InnovatePERT - Password Reset OTP");
@@ -57,13 +68,19 @@ public class EmailServiceImpl implements EmailService {
               + "Regards,\n"
               + "InnovatePERT Team");
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent OTP email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send OTP email to {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
 	
 	@Override
     @Async
     public void sendProjectAssignmentNotification(String toEmail, String managerName, String projectName, String description, String priority, String startDate, String targetDate, String budget) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("New Project Assigned: " + projectName);
         message.setText("Hello " + managerName + ",\n\n"
@@ -83,13 +100,19 @@ public class EmailServiceImpl implements EmailService {
                 + "4. Advance the project status sequentially (NOT_STARTED -> IN_PROGRESS -> COMPLETED) as your work progresses.\n\n"
                 + "Best Regards,\nInnovatePERT R&D Director");
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent project assignment notification to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send project assignment notification to {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
     
     @Override
     @Async
     public void sendProjectUpdateNotification(String toEmail, String managerName, String projectName, String updatedFields) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("Project Updated: " + projectName);
         message.setText("Hello " + managerName + ",\n\n"
@@ -99,13 +122,19 @@ public class EmailServiceImpl implements EmailService {
                 + "Please log in to the InnovatePERT system to review the changes.\n\n"
                 + "Best Regards,\nInnovatePERT R&D Director");
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent project update notification to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send project update notification to {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
 
     @Override
     @Async
     public void sendProjectManagerProfileUpdateNotification(String toEmail, String managerName, String changedFields) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("Profile Update Notification");
         message.setText("Hello " + managerName + ",\n\n"
@@ -115,26 +144,38 @@ public class EmailServiceImpl implements EmailService {
                 + "If you did not expect these changes, please contact your R&D Director immediately.\n\n"
                 + "Best Regards,\nInnovatePERT System Administrator");
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent profile update notification to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send profile update notification to {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
 
     @Override
     @Async
     public void sendProjectTransferNotificationToOldPM(String toEmail, String managerName, String projectName, String newManagerName) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("Project Transfer Notification: " + projectName);
         message.setText("Hello " + managerName + ",\n\n"
                 + "The project '" + projectName + "' has been successfully transferred from you to another Project Manager (" + newManagerName + ").\n\n"
                 + "You no longer have access to this project or its activities. Your access to all other assigned projects remains unchanged.\n\n"
                 + "Best Regards,\nInnovatePERT R&D Director");
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent project transfer notification to old PM {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send project transfer notification to old PM {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
 
     @Override
     @Async
     public void sendProjectTransferNotificationToNewPM(String toEmail, String managerName, String projectName, String oldManagerName) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("Project Transfer Assigned: " + projectName);
         message.setText("Hello " + managerName + ",\n\n"
@@ -142,6 +183,11 @@ public class EmailServiceImpl implements EmailService {
                 + "You now have full access to this complete project and all of its existing activities. You can continue working on it according to your existing permissions.\n\n"
                 + "Please log in to the InnovatePERT system to review the project.\n\n"
                 + "Best Regards,\nInnovatePERT R&D Director");
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("Successfully sent project transfer notification to new PM {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send project transfer notification to new PM {}. Error: {}", toEmail, e.getMessage(), e);
+        }
     }
 }
