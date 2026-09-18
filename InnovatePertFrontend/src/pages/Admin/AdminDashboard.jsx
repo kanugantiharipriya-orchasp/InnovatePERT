@@ -11,7 +11,7 @@ import ProjectManagerPerformance from "../../components/AdminDashboard/ProjectMa
 import AdminProjects from "./AdminProjects";
 import AdminRiskAnalysis from "./AdminRiskAnalysis";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function AdminDashboard() {
   const navigate = useNavigate();

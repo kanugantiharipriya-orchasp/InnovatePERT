@@ -22,7 +22,7 @@ import { projectManagerService } from "../../services/projectManagerService";
 import { validateProjectName, validateDescription, validatePositiveNumber } from "../../utils/validation";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  import.meta.env.VITE_API_BASE_URL;
 
 const EMPTY_PROJECT = {
   projectName: "",

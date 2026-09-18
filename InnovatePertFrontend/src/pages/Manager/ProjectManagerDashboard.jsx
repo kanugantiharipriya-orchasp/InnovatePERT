@@ -15,7 +15,7 @@ import ProjectProgress from "../../components/PMDashboard/ProjectProgress";
 import RiskOverview from "../../components/PMDashboard/RiskOverview";
 import ActivityStatus from "../../components/PMDashboard/ActivityStatus";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 
 // Map URL path segments to section keys

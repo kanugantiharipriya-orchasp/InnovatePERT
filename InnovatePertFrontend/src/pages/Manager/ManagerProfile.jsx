@@ -19,7 +19,7 @@ import {
 import ImageCropModal from "../../components/ImageCropModal";
 import { validatePassword } from "../../utils/validation";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const LOCAL_IMG_KEY = (userId) => `profile_image_${userId}`;
 

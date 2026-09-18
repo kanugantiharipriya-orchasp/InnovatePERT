@@ -4,7 +4,7 @@ import { validateEmail, validatePassword } from "../utils/validation";
 import PasswordInput from "../components/PasswordInput";
 import useScrollLock from "../utils/useScrollLock";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /* Step indicator */
 const steps = ["Email", "OTP", "Reset"];
