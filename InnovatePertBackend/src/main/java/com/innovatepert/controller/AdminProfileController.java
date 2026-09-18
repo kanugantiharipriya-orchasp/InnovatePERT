@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/admin/profile")
-@CrossOrigin(origins = "http://localhost:80803")
+@CrossOrigin(origins = "https://innovate-pert.vercel.app")
 @Validated
 public class AdminProfileController {
 

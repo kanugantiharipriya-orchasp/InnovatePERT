@@ -21,7 +21,8 @@ public class WebCorsConfig {
 		                	    "http://localhost:5173",
 		                	    "http://localhost:5174",
 		                	    "http://localhost:5175",
-		                	    "http://127.0.0.1:5173"
+		                	    "http://127.0.0.1:5173",
+                                "https://innovate-pert.vercel.app"
 		                	)
                         // Allow all standard HTTP methods used by your frontend module
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
