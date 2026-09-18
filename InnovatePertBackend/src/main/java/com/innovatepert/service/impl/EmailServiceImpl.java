@@ -2,6 +2,7 @@ package com.innovatepert.service.impl;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.innovatepert.service.EmailService;
@@ -17,6 +18,7 @@ public class EmailServiceImpl implements EmailService {
 	private final JavaMailSender mailSender;
 
 	@Override
+    @Async
 	public void sendProjectManagerCredentials(String toEmail, String fullName, String temporaryPassword) {
 		SimpleMailMessage message = new SimpleMailMessage();
 
@@ -34,6 +36,7 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 	@Override
+    @Async
     public void sendOtpEmail(String toEmail, String otp) {
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -58,6 +61,7 @@ public class EmailServiceImpl implements EmailService {
     }
 	
 	@Override
+    @Async
     public void sendProjectAssignmentNotification(String toEmail, String managerName, String projectName, String description, String priority, String startDate, String targetDate, String budget) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -83,6 +87,7 @@ public class EmailServiceImpl implements EmailService {
     }
     
     @Override
+    @Async
     public void sendProjectUpdateNotification(String toEmail, String managerName, String projectName, String updatedFields) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -98,6 +103,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendProjectManagerProfileUpdateNotification(String toEmail, String managerName, String changedFields) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -113,6 +119,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendProjectTransferNotificationToOldPM(String toEmail, String managerName, String projectName, String newManagerName) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -125,6 +132,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendProjectTransferNotificationToNewPM(String toEmail, String managerName, String projectName, String oldManagerName) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);

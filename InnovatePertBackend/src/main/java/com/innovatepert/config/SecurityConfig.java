@@ -41,6 +41,7 @@ public class SecurityConfig {
             // Route permission rules
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Public login/register endpoints
+                .requestMatchers("/error").permitAll()       // Allow error dispatches
                 .anyRequest().authenticated()                 // All other endpoints require a token
             )
             // Add our JWT token filter before the default username/password filter
