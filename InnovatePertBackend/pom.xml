@@ -15,6 +15,7 @@
     <groupId>com.innovatepert</groupId>
     <artifactId>InnovatePertBackend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    
 
     <name>InnovatePertBackend</name>
     <description>InnovatePERT Backend Application</description>
