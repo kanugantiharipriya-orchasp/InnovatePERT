@@ -127,10 +127,7 @@ public class ReportService {
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to PDF
     private byte[] generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data) {
-        try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
-            if (jrxmlStream == null) {
-                throw new RuntimeException("Jasper template not found at /" + jrxmlClasspath);
-            }
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -148,10 +145,7 @@ public class ReportService {
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to XLSX
     private byte[] generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName) {
-        try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
-            if (jrxmlStream == null) {
-                throw new RuntimeException("Jasper template not found at /" + jrxmlClasspath);
-            }
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -183,9 +177,7 @@ public class ReportService {
     // 1. PROJECT MANAGERS OVERVIEW REPORT
     // ==========================================
 
-    public List<ProjectManagerReportDTO> getProjectManagersReportDataByUserId(Integer userId) {
-        User user = getLoggedInUserEntity(userId);
-
+    private List<ProjectManagerReportDTO> fetchProjectManagersReportData(User user) {
         List<User> managers;
         if (user != null && user.getRole() == Role.ADMIN) {
             managers = userRepository.findByRoleAndCreatedByAdmin(Role.PROJECT_MANAGER, user);
@@ -195,7 +187,7 @@ public class ReportService {
             managers = List.of();
         }
 
-        List<ProjectManagerReportDTO> dtos = managers.stream().map(manager -> {
+        return managers.stream().map(manager -> {
             long actualProjectCount = projectRepository.countByAssignedTo(manager);
             return ProjectManagerReportDTO.builder()
                 .managerId(manager.getUserId())
@@ -205,26 +197,32 @@ public class ReportService {
                 .projectCount((int) actualProjectCount)
                 .build();
         }).collect(Collectors.toList());
+    }
 
+    public List<ProjectManagerReportDTO> getProjectManagersReportDataByUserId(Integer userId) {
+        User user = getLoggedInUserEntity(userId);
+        List<ProjectManagerReportDTO> dtos = fetchProjectManagersReportData(user);
         saveReportAudit(user, ReportType.PROJECT_MANAGERS, "JSON", ReportStatus.GENERATED);
         return dtos;
     }
 
     public byte[] exportProjectManagersPdfByUserId(Integer userId) {
-        List<ProjectManagerReportDTO> data = getProjectManagersReportDataByUserId(userId);
+        User user = getLoggedInUserEntity(userId);
+        List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
         byte[] pdf = generatePdfFromStream("reports/project_managers_report.jrxml", parameters, data);
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_MANAGERS, "PDF", ReportStatus.DOWNLOADED);
+        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
 
     public byte[] exportProjectManagersExcelByUserId(Integer userId) {
-        List<ProjectManagerReportDTO> data = getProjectManagersReportDataByUserId(userId);
+        User user = getLoggedInUserEntity(userId);
+        List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
         byte[] excel = generateExcelFromStream("reports/project_managers_report.jrxml", parameters, data, "Project Managers Report");
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_MANAGERS, "XLSX", ReportStatus.DOWNLOADED);
+        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "XLSX", ReportStatus.DOWNLOADED);
         return excel;
     }
 
@@ -232,11 +230,10 @@ public class ReportService {
     // 2. DYNAMIC COMPLETE PROJECT REPORT
     // ==========================================
 
-    public CompleteProjectReportDTO getCompleteProjectReportDataByUserId(Integer projectId, Integer userId) {
+    private CompleteProjectReportDTO fetchCompleteProjectReportData(Integer projectId, User requestingUser) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
 
-        User requestingUser = getLoggedInUserEntity(userId);
         validateProjectAccess(project, requestingUser);
 
         List<Activity> activities = activityRepository.findByProject_ProjectId(projectId);
@@ -277,7 +274,7 @@ public class ReportService {
                 .build()
         ).collect(Collectors.toList());
 
-        CompleteProjectReportDTO dto = CompleteProjectReportDTO.builder()
+        return CompleteProjectReportDTO.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getDescription())
@@ -294,20 +291,21 @@ public class ReportService {
                 .projectStandardDeviation(Math.round(projectStandardDeviation * 100.0) / 100.0)
                 .activities(activityDTOs)
                 .build();
+    }
 
+    public CompleteProjectReportDTO getCompleteProjectReportDataByUserId(Integer projectId, Integer userId) {
+        User requestingUser = getLoggedInUserEntity(userId);
+        CompleteProjectReportDTO dto = fetchCompleteProjectReportData(projectId, requestingUser);
+        Project project = projectRepository.findById(projectId).orElse(null);
         saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "JSON", ReportStatus.GENERATED);
         return dto;
     }
 
-    private JasperPrint fillCompleteProjectJasperReport(Integer projectId, Integer userId) throws Exception {
-        CompleteProjectReportDTO dto = getCompleteProjectReportDataByUserId(projectId, userId);
+    private JasperPrint fillCompleteProjectJasperReport(Integer projectId, User requestingUser) throws Exception {
+        CompleteProjectReportDTO dto = fetchCompleteProjectReportData(projectId, requestingUser);
 
-        InputStream jrxmlStream = getClass().getResourceAsStream("/reports/complete_project_report.jrxml");
-        if (jrxmlStream == null) {
-            throw new RuntimeException("Jasper template not found in /reports/complete_project_report.jrxml");
-        }
-
-        JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource("reports/complete_project_report.jrxml").getInputStream()) {
+            JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("projectId", dto.getProjectId());
@@ -331,12 +329,13 @@ public class ReportService {
                 ? new JRBeanCollectionDataSource(dto.getActivities())
                 : new JRBeanCollectionDataSource(List.of());
 
-        return JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+            return JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+        }
     }
 
     public byte[] exportCompleteProjectPdfByUserId(Integer projectId, Integer userId) throws Exception {
         User requestingUser = getLoggedInUserEntity(userId);
-        JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, userId);
+        JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, requestingUser);
         byte[] pdfBytes = JasperExportManager.exportReportToPdf(jasperPrint);
 
         Project project = projectRepository.findById(projectId).orElse(null);
@@ -347,7 +346,7 @@ public class ReportService {
 
     public byte[] exportCompleteProjectExcelByUserId(Integer projectId, Integer userId) throws Exception {
         User requestingUser = getLoggedInUserEntity(userId);
-        JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, userId);
+        JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, requestingUser);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JRXlsxExporter exporter = new JRXlsxExporter();
@@ -368,8 +367,7 @@ public class ReportService {
     // 3. RISK ASSESSMENT REPORT (single project)
     // ==========================================
 
-    public RiskAssessmentReportDTO getRiskAssessmentReportDataByUserId(Integer projectId, Integer userId) {
-        User user = getLoggedInUserEntity(userId);
+    private RiskAssessmentReportDTO fetchRiskAssessmentReportData(Integer projectId, User user) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
 
@@ -390,7 +388,7 @@ public class ReportService {
         String riskLevel = probability >= 80 ? "LOW" : (probability >= 50 ? "MEDIUM" : "HIGH");
         String managerName = (project.getAssignedTo() != null) ? project.getAssignedTo().getFullName() : "Unassigned";
 
-        RiskAssessmentReportDTO dto = RiskAssessmentReportDTO.builder()
+        return RiskAssessmentReportDTO.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getDescription())
@@ -408,13 +406,19 @@ public class ReportService {
                 .completionProbability(BigDecimal.valueOf(probability).setScale(2, RoundingMode.HALF_UP))
                 .riskLevel(riskLevel)
                 .build();
+    }
 
+    public RiskAssessmentReportDTO getRiskAssessmentReportDataByUserId(Integer projectId, Integer userId) {
+        User user = getLoggedInUserEntity(userId);
+        RiskAssessmentReportDTO dto = fetchRiskAssessmentReportData(projectId, user);
+        Project project = projectRepository.findById(projectId).orElse(null);
         saveReportAuditWithProject(user, project, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED);
         return dto;
     }
 
     public byte[] exportRiskAssessmentPdfByUserId(Integer projectId, Integer userId) {
-        RiskAssessmentReportDTO data = getRiskAssessmentReportDataByUserId(projectId, userId);
+        User user = getLoggedInUserEntity(userId);
+        RiskAssessmentReportDTO data = fetchRiskAssessmentReportData(projectId, user);
 
         PortfolioRiskReportDTO pDto = PortfolioRiskReportDTO.builder()
                 .projectId(data.getProjectId())
@@ -431,12 +435,13 @@ public class ReportService {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Risk Assessment Report - " + data.getProjectName());
         byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto));
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
+        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
 
     public byte[] exportRiskAssessmentExcelByUserId(Integer projectId, Integer userId) {
-        RiskAssessmentReportDTO data = getRiskAssessmentReportDataByUserId(projectId, userId);
+        User user = getLoggedInUserEntity(userId);
+        RiskAssessmentReportDTO data = fetchRiskAssessmentReportData(projectId, user);
 
         PortfolioRiskReportDTO pDto = PortfolioRiskReportDTO.builder()
                 .projectId(data.getProjectId())
@@ -461,9 +466,7 @@ public class ReportService {
     // 4. ADMIN PORTFOLIO-WIDE RISK REPORT
     // ==========================================
 
-    public List<PortfolioRiskReportDTO> getPortfolioRiskReportDataByUserId(Integer userId) {
-        User user = getLoggedInUserEntity(userId);
-
+    private List<PortfolioRiskReportDTO> fetchPortfolioRiskReportData(User user) {
         if (user != null && user.getRole() == Role.PROJECT_MANAGER) {
             throw new RuntimeException("Unauthorized: Project Managers cannot access portfolio-wide aggregate reports.");
         }
@@ -472,7 +475,7 @@ public class ReportService {
                 ? projectRepository.findProjectsByAdmin(user)
                 : (user != null ? projectRepository.findByAssignedTo(user) : List.of());
 
-        List<PortfolioRiskReportDTO> portfolioList = targetProjects.stream().map(project -> {
+        return targetProjects.stream().map(project -> {
             List<PertResult> pertResults = pertResultRepository.findByProject_ProjectId(project.getProjectId());
 
             double expectedDuration = pertResults.stream().mapToDouble(p -> p.getExpectedTime() != null ? p.getExpectedTime() : 0.0).sum();
@@ -500,22 +503,28 @@ public class ReportService {
                     .riskLevel(riskLevel)
                     .build();
         }).collect(Collectors.toList());
+    }
 
+    public List<PortfolioRiskReportDTO> getPortfolioRiskReportDataByUserId(Integer userId) {
+        User user = getLoggedInUserEntity(userId);
+        List<PortfolioRiskReportDTO> portfolioList = fetchPortfolioRiskReportData(user);
         saveReportAudit(user, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED);
         return portfolioList;
     }
 
     public byte[] exportPortfolioRiskPdfByUserId(Integer userId) {
-        List<PortfolioRiskReportDTO> data = getPortfolioRiskReportDataByUserId(userId);
+        User user = getLoggedInUserEntity(userId);
+        List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
         byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, data);
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
+        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
 
     public byte[] exportPortfolioRiskExcelByUserId(Integer userId) {
-        List<PortfolioRiskReportDTO> data = getPortfolioRiskReportDataByUserId(userId);
+        User user = getLoggedInUserEntity(userId);
+        List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
         byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "Portfolio Risk Report");
@@ -527,11 +536,10 @@ public class ReportService {
     // 5. PROJECT CRASHING REPORT
     // ==========================================
 
-    public com.innovatepert.dto.ProjectCrashingReportDTO getProjectCrashingReportDataByUserId(Integer projectId, Integer userId) {
+    private com.innovatepert.dto.ProjectCrashingReportDTO fetchProjectCrashingReportData(Integer projectId, User requestingUser) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
 
-        User requestingUser = getLoggedInUserEntity(userId);
         validateProjectAccess(project, requestingUser);
 
         List<com.innovatepert.entity.ProjectCrashing> crashingRows = projectCrashingRepository.findByProject_ProjectId(projectId);
@@ -582,8 +590,6 @@ public class ReportService {
 
         long recommendedCount = latestRows.stream().filter(r -> Boolean.TRUE.equals(r.getRecommended())).count();
 
-        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "JSON", ReportStatus.GENERATED);
-
         return com.innovatepert.dto.ProjectCrashingReportDTO.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
@@ -599,17 +605,26 @@ public class ReportService {
                 .build();
     }
 
+    public com.innovatepert.dto.ProjectCrashingReportDTO getProjectCrashingReportDataByUserId(Integer projectId, Integer userId) {
+        User requestingUser = getLoggedInUserEntity(userId);
+        com.innovatepert.dto.ProjectCrashingReportDTO dto = fetchProjectCrashingReportData(projectId, requestingUser);
+        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "JSON", ReportStatus.GENERATED);
+        return dto;
+    }
+
     public byte[] exportProjectCrashingPdfByUserId(Integer projectId, Integer userId) {
-        com.innovatepert.dto.ProjectCrashingReportDTO data = getProjectCrashingReportDataByUserId(projectId, userId);
+        User requestingUser = getLoggedInUserEntity(userId);
+        com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
         byte[] pdf = generatePdfFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities());
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_CRASHING, "PDF", ReportStatus.DOWNLOADED);
+        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
 
     public byte[] exportProjectCrashingExcelByUserId(Integer projectId, Integer userId) {
-        com.innovatepert.dto.ProjectCrashingReportDTO data = getProjectCrashingReportDataByUserId(projectId, userId);
+        User requestingUser = getLoggedInUserEntity(userId);
+        com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
         byte[] excel = generateExcelFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "Project Crashing Report");

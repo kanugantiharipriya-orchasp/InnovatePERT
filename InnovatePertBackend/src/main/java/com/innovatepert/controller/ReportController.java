@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,8 @@ import com.innovatepert.service.impl.ReportService;
 @RestController
 @RequestMapping("/api/v1/reports")
 public class ReportController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     @Autowired
     private ReportService reportService;
@@ -69,7 +73,7 @@ public class ReportController {
 
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Project Managers PDF report", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -86,7 +90,7 @@ public class ReportController {
 
             return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Project Managers Excel report", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -105,7 +109,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "complete_project_report_proj_" + projectId + ".pdf");
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Complete Project PDF report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -123,7 +127,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "complete_project_report_proj_" + projectId + ".xlsx");
             return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Complete Project Excel report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -143,7 +147,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "risk_assessment_report_proj_" + projectId + ".pdf");
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Risk Assessment PDF report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -161,7 +165,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "risk_assessment_report_proj_" + projectId + ".xlsx");
             return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Risk Assessment Excel report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -181,7 +185,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "project_crashing_report_proj_" + projectId + ".pdf");
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Project Crashing PDF report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -199,7 +203,7 @@ public class ReportController {
             headers.setContentDispositionFormData("attachment", "project_crashing_report_proj_" + projectId + ".xlsx");
             return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error generating Project Crashing Excel report for projectId: {}", projectId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
