@@ -127,7 +127,10 @@ public class ReportService {
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to PDF
     private byte[] generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data) {
-        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
+        try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
+            if (jrxmlStream == null) {
+                throw new RuntimeException("Jasper template not found in classpath: /" + jrxmlClasspath);
+            }
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -145,7 +148,10 @@ public class ReportService {
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to XLSX
     private byte[] generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName) {
-        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
+        try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
+            if (jrxmlStream == null) {
+                throw new RuntimeException("Jasper template not found in classpath: /" + jrxmlClasspath);
+            }
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -304,7 +310,10 @@ public class ReportService {
     private JasperPrint fillCompleteProjectJasperReport(Integer projectId, User requestingUser) throws Exception {
         CompleteProjectReportDTO dto = fetchCompleteProjectReportData(projectId, requestingUser);
 
-        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource("reports/complete_project_report.jrxml").getInputStream()) {
+        try (InputStream jrxmlStream = getClass().getResourceAsStream("/reports/complete_project_report.jrxml")) {
+            if (jrxmlStream == null) {
+                throw new RuntimeException("Jasper template not found in classpath: /reports/complete_project_report.jrxml");
+            }
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
         Map<String, Object> parameters = new HashMap<>();
