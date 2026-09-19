@@ -1,2 +1,5 @@
 [phases.setup]
 aptPkgs = ["...", "fontconfig", "libfreetype6"]
+
+[variables]
+JAVA_TOOL_OPTIONS = "-Xmx256m -Xss512k -XX:MaxMetaspaceSize=128m -XX:+UseContainerSupport"
