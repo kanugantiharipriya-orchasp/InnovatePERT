@@ -132,11 +132,12 @@
 	        <artifactId>jasperreports-fonts</artifactId>
 	        <version>6.20.6</version>
 	    </dependency>
-	    <!-- Eclipse JDT Compiler (Required for JasperReports to compile JRXML dynamically on Java 21) -->
+	
+	    <!-- Apache POI for Excel Processing -->
 	    <dependency>
-	        <groupId>org.eclipse.jdt</groupId>
-	        <artifactId>ecj</artifactId>
-	        <version>3.37.0</version>
+	        <groupId>org.apache.poi</groupId>
+	        <artifactId>poi-ooxml</artifactId>
+	        <version>5.2.3</version>
 	    </dependency>
 
     </dependencies>

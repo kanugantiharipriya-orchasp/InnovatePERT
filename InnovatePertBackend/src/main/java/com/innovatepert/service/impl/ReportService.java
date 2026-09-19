@@ -12,10 +12,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import java.io.FileNotFoundException;
 
 import com.innovatepert.dto.ActivityReportDTO;
 import com.innovatepert.dto.CompleteProjectReportDTO;
@@ -52,8 +48,6 @@ import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
 @Service
 public class ReportService {
-
-    private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -132,16 +126,8 @@ public class ReportService {
     }
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to PDF
-    private byte[] generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, Integer projectId, Integer userId) {
-        ClassPathResource resource = new ClassPathResource(jrxmlClasspath);
-
-        if (!resource.exists()) {
-            String errorMsg = "Jasper report resource not found: " + jrxmlClasspath;
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-
-        try (InputStream jrxmlStream = resource.getInputStream()) {
+    private byte[] generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data) {
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -152,23 +138,14 @@ public class ReportService {
             return JasperExportManager.exportReportToPdf(jasperPrint);
 
         } catch (Exception e) {
-            logger.error("Failed to generate Jasper report. Resource: {}, Project ID: {}, User ID: {}, Error: {}",
-                    jrxmlClasspath, projectId, userId, e.getMessage(), e);
+            e.printStackTrace();
             throw new RuntimeException("Error generating Jasper PDF report: " + e.getMessage(), e);
         }
     }
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to XLSX
-    private byte[] generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName, Integer projectId, Integer userId) {
-        ClassPathResource resource = new ClassPathResource(jrxmlClasspath);
-
-        if (!resource.exists()) {
-            String errorMsg = "Jasper report resource not found: " + jrxmlClasspath;
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-
-        try (InputStream jrxmlStream = resource.getInputStream()) {
+    private byte[] generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName) {
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource(jrxmlClasspath).getInputStream()) {
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
             JRBeanCollectionDataSource dataSource = (data != null && !data.isEmpty()) 
@@ -191,8 +168,7 @@ public class ReportService {
             return byteArrayOutputStream.toByteArray();
 
         } catch (Exception e) {
-            logger.error("Failed to generate Jasper report. Resource: {}, Project ID: {}, User ID: {}, Error: {}",
-                    jrxmlClasspath, projectId, userId, e.getMessage(), e);
+            e.printStackTrace();
             throw new RuntimeException("Error generating Jasper Excel report: " + e.getMessage(), e);
         }
     }
@@ -235,7 +211,7 @@ public class ReportService {
         List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
-        byte[] pdf = generatePdfFromStream("reports/project_managers_report.jrxml", parameters, data, null, userId);
+        byte[] pdf = generatePdfFromStream("reports/project_managers_report.jrxml", parameters, data);
         saveReportAudit(user, ReportType.PROJECT_MANAGERS, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
@@ -245,7 +221,7 @@ public class ReportService {
         List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
-        byte[] excel = generateExcelFromStream("reports/project_managers_report.jrxml", parameters, data, "Project Managers Report", null, userId);
+        byte[] excel = generateExcelFromStream("reports/project_managers_report.jrxml", parameters, data, "Project Managers Report");
         saveReportAudit(user, ReportType.PROJECT_MANAGERS, "XLSX", ReportStatus.DOWNLOADED);
         return excel;
     }
@@ -328,45 +304,32 @@ public class ReportService {
     private JasperPrint fillCompleteProjectJasperReport(Integer projectId, User requestingUser) throws Exception {
         CompleteProjectReportDTO dto = fetchCompleteProjectReportData(projectId, requestingUser);
 
-        String jrxmlClasspath = "reports/complete_project_report.jrxml";
-        ClassPathResource resource = new ClassPathResource(jrxmlClasspath);
-
-        if (!resource.exists()) {
-            String errorMsg = "Jasper report resource not found: " + jrxmlClasspath;
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-
-        try (InputStream jrxmlStream = resource.getInputStream()) {
+        try (InputStream jrxmlStream = new org.springframework.core.io.ClassPathResource("reports/complete_project_report.jrxml").getInputStream()) {
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("projectId", dto.getProjectId());
-            parameters.put("projectName", dto.getProjectName());
-            parameters.put("description", dto.getProjectDescription());
-            parameters.put("status", dto.getStatus());
-            parameters.put("priority", dto.getPriority());
-            parameters.put("managerName", dto.getManagerName());
-            parameters.put("startDate", dto.getStartDate() != null ? dto.getStartDate().toString() : "");
-            parameters.put("targetDate", dto.getTargetDate() != null ? dto.getTargetDate().toString() : "");
-            parameters.put("budget", dto.getBudget());
-            parameters.put("totalTasks", dto.getTotalTasks());
-            parameters.put("completedTasks", dto.getCompletedTasksCount());
-            parameters.put("completionPercentage", dto.getCompletionPercentage());
-            parameters.put("totalExpectedDuration", dto.getTotalExpectedDuration());
-            parameters.put("totalVariance", dto.getProjectStandardDeviation() != null ? Math.pow(dto.getProjectStandardDeviation(), 2) : 0.0);
-            parameters.put("projectStandardDeviation", dto.getProjectStandardDeviation());
-            parameters.put("showActivityDetails", dto.getActivities() != null);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("projectId", dto.getProjectId());
+        parameters.put("projectName", dto.getProjectName());
+        parameters.put("description", dto.getProjectDescription());
+        parameters.put("status", dto.getStatus());
+        parameters.put("priority", dto.getPriority());
+        parameters.put("managerName", dto.getManagerName());
+        parameters.put("startDate", dto.getStartDate() != null ? dto.getStartDate().toString() : "");
+        parameters.put("targetDate", dto.getTargetDate() != null ? dto.getTargetDate().toString() : "");
+        parameters.put("budget", dto.getBudget());
+        parameters.put("totalTasks", dto.getTotalTasks());
+        parameters.put("completedTasks", dto.getCompletedTasksCount());
+        parameters.put("completionPercentage", dto.getCompletionPercentage());
+        parameters.put("totalExpectedDuration", dto.getTotalExpectedDuration());
+        parameters.put("totalVariance", dto.getProjectStandardDeviation() != null ? Math.pow(dto.getProjectStandardDeviation(), 2) : 0.0);
+        parameters.put("projectStandardDeviation", dto.getProjectStandardDeviation());
+        parameters.put("showActivityDetails", dto.getActivities() != null);
 
-            JRBeanCollectionDataSource dataSource = (dto.getActivities() != null && !dto.getActivities().isEmpty())
-                    ? new JRBeanCollectionDataSource(dto.getActivities())
-                    : new JRBeanCollectionDataSource(List.of());
+        JRBeanCollectionDataSource dataSource = (dto.getActivities() != null && !dto.getActivities().isEmpty())
+                ? new JRBeanCollectionDataSource(dto.getActivities())
+                : new JRBeanCollectionDataSource(List.of());
 
             return JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-        } catch (Exception e) {
-            logger.error("Failed to generate Jasper report. Resource: {}, Project ID: {}, User ID: {}, Error: {}",
-                    jrxmlClasspath, projectId, requestingUser != null ? requestingUser.getUserId() : null, e.getMessage(), e);
-            throw new RuntimeException("Error generating Jasper PDF report: " + e.getMessage(), e);
         }
     }
 
@@ -471,7 +434,7 @@ public class ReportService {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Risk Assessment Report - " + data.getProjectName());
-        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), projectId, userId);
+        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto));
         saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
@@ -494,7 +457,7 @@ public class ReportService {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Risk Assessment Report - " + data.getProjectName());
-        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), "Risk Assessment Report", projectId, userId);
+        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), "Risk Assessment Report");
         saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED);
         return excel;
     }
@@ -554,7 +517,7 @@ public class ReportService {
         List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
-        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, data, null, userId);
+        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, data);
         saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
@@ -564,7 +527,7 @@ public class ReportService {
         List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
-        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "Portfolio Risk Report", null, userId);
+        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "Portfolio Risk Report");
         saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED);
         return excel;
     }
@@ -654,7 +617,7 @@ public class ReportService {
         com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
-        byte[] pdf = generatePdfFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), projectId, userId);
+        byte[] pdf = generatePdfFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities());
         saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "PDF", ReportStatus.DOWNLOADED);
         return pdf;
     }
@@ -664,7 +627,7 @@ public class ReportService {
         com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
-        byte[] excel = generateExcelFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "Project Crashing Report", projectId, userId);
+        byte[] excel = generateExcelFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "Project Crashing Report");
         saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_CRASHING, "XLSX", ReportStatus.DOWNLOADED);
         return excel;
     }
