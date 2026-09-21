@@ -446,7 +446,7 @@ function AdminProfile() {
       <main
         key="profile"
         style={{ "--sidebar-w": sidebarOpen ? "18rem" : "6rem" }}
-        className={`relative z-10 flex-1 p-4 sm:p-5 transition-all duration-300 lg:p-8 ${
+        className={`relative z-10 flex-1 overflow-x-hidden p-4 sm:p-5 transition-all duration-300 lg:p-8 ${
           sidebarOpen ? "lg:ml-72" : "lg:ml-24"
         }`}
       >
@@ -510,7 +510,7 @@ function AdminProfile() {
                 <div className="p-6 sm:p-8 lg:p-10">
                   <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                     {/* LEFT — IDENTITY */}
-                    <div className="flex min-w-0 items-center gap-5 sm:gap-7">
+                    <div className="flex flex-col sm:flex-row min-w-0 items-center gap-5 sm:gap-7">
                       {/* PROFILE IMAGE + REMOVE PHOTO BELOW */}
                       <div className="relative shrink-0 flex flex-col items-center gap-3">
                         {/* PROFILE PHOTO */}
@@ -618,7 +618,7 @@ function AdminProfile() {
                       </div>
 
                       {/* IDENTITY DETAILS */}
-                      <div className="min-w-0">
+                      <div className="min-w-0 text-center sm:text-left">
                         <div className="flex flex-wrap items-center gap-3">
                           <h2 className="truncate text-2xl font-bold tracking-[-0.035em] text-slate-900 sm:text-3xl">
                             {profile.name || "R&D Director"}
@@ -634,7 +634,7 @@ function AdminProfile() {
                           {profile.email || "—"}
                         </p>
 
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <div className="mt-3 flex flex-wrap justify-center sm:justify-start items-center gap-2">
                           <span className="rounded-full bg-sky-50 px-3 py-1 text-[11px] font-semibold text-sky-700">
                             {profile.displayRole ||
                               profile.role ||
@@ -645,7 +645,7 @@ function AdminProfile() {
                     </div>
 
                     {/* RIGHT — ACTIONS: Edit Profile + Change Password */}
-                    <div className="flex flex-wrap gap-2 lg:justify-end">
+                    <div className="flex flex-wrap justify-center gap-2 lg:justify-end">
                       <button
                         type="button"
                         onClick={openEdit}

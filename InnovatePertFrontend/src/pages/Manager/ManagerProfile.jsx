@@ -390,7 +390,7 @@ function ManagerProfile() {
           <div className="px-6 py-8 sm:px-10 sm:py-10">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
               {/* LEFT */}
-              <div className="flex items-center gap-5 sm:gap-7">
+              <div className="flex flex-col sm:flex-row min-w-0 items-center gap-5 sm:gap-7">
                 {/* Avatar */}
                 <div className="relative shrink-0">
                   <div
@@ -441,7 +441,7 @@ function ManagerProfile() {
                 </div>
 
                 {/* Identity */}
-                <div className="min-w-0">
+                <div className="min-w-0 text-center sm:text-left">
                   <h2 className="truncate text-2xl font-semibold tracking-[-0.03em] text-cyan-600 sm:text-3xl">
                     {profile.fullName || "Project Manager"}
                   </h2>
@@ -450,7 +450,7 @@ function ManagerProfile() {
                     {profile.email || "—"}
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="mt-3 flex flex-wrap justify-center sm:justify-start items-center gap-2">
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-600">
                       {profile.role || "Project Manager"}
                     </span>
@@ -464,7 +464,7 @@ function ManagerProfile() {
               </div>
 
               {/* RIGHT */}
-              <div className="flex flex-wrap gap-2 sm:justify-end">
+              <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                 <label
                   htmlFor="profileImage"
                   className="flex cursor-pointer items-center justify-center

@@ -225,21 +225,23 @@ export default function AdminRiskAnalysis() {
         <div className="space-y-6">
 
       {/* ── Header ── */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 shadow-sm lg:hidden hover:text-sky-600 hover:bg-slate-50"
-        >
-          <FaBars size={18} />
-        </button>
-        <h1 className="text-2xl font-black tracking-tight text-slate-900">
-          Risk Assessment{" "}
-          <span className="bg-linear-to-r from-rose-500 to-orange-400 bg-clip-text text-transparent">
-            Summary
-          </span>
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Real-time monitoring of project risk metrics across all managers.
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen(!open)}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 shadow-sm lg:hidden hover:text-sky-600 hover:bg-slate-50"
+          >
+            <FaBars size={18} />
+          </button>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+            Risk Assessment{" "}
+            <span className="bg-linear-to-r from-rose-500 to-orange-400 bg-clip-text text-transparent">
+              Summary
+            </span>
+          </h1>
+        </div>
+        <p className="text-sm text-slate-500 sm:mt-1 sm:ml-auto">
+          Real-time monitoring of project risk metrics.
         </p>
       </div>
 
@@ -258,7 +260,7 @@ export default function AdminRiskAnalysis() {
       ) : (
         <>
           {/* ── KPI Cards — Dashboard style ── */}
-          <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:grid-cols-4">
             <StatCard label="Total Projects"  value={base.length}   icon={<FaList size={15} />}
               filter={{ gradient: "from-cyan-400 to-blue-600", valueColor: "text-cyan-600", ring: "ring-cyan-300" }}
               active={activeRiskFilter === "ALL"} onClick={() => selectRiskFilter("ALL")} />
