@@ -357,9 +357,9 @@ function WhyCardsStack({ items }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* ── Collapsed stack ── */}
+      {/* ── Collapsed stack (Desktop only) ── */}
       <div
-        className="absolute inset-x-0 top-0 cursor-pointer transition-all duration-500"
+        className="absolute inset-x-0 top-0 hidden lg:block cursor-pointer transition-all duration-500"
         style={{
           height: collapsedH,
           opacity: hovered ? 0 : 1,
@@ -400,12 +400,13 @@ function WhyCardsStack({ items }) {
         })}
       </div>
 
-      {/* ── Expanded 2-column grid ── */}
+      {/* ── Expanded grid (Desktop hover & Mobile default) ── */}
       <div
-        className="absolute inset-x-0 top-0 grid grid-cols-2 gap-4 transition-all duration-500"
+        className="absolute inset-x-0 top-0 grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 lg:absolute lg:top-0"
         style={{
-          opacity: hovered ? 1 : 0,
-          pointerEvents: hovered ? "auto" : "none",
+          opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
+          pointerEvents: typeof window !== "undefined" && window.innerWidth < 1024 ? "auto" : (hovered ? "auto" : "none"),
+          position: typeof window !== "undefined" && window.innerWidth < 1024 ? "relative" : "absolute"
         }}
       >
         {/* Left column — cards 0,1 appear first */}
@@ -413,11 +414,11 @@ function WhyCardsStack({ items }) {
           {leftItems.map((item, i) => (
             <div
               key={item.title}
-              className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
+              className="flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
               style={{
-                opacity: hovered ? 1 : 0,
-                transform: hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-                transitionDelay: hovered ? `${i * 0.15}s` : "0s",
+                opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
+                transform: typeof window !== "undefined" && window.innerWidth < 1024 ? "translateY(0) scale(1)" : (hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)"),
+                transitionDelay: typeof window !== "undefined" && window.innerWidth < 1024 ? "0s" : (hovered ? `${i * 0.15}s` : "0s"),
               }}
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-600 text-white shadow-sm">
@@ -436,11 +437,11 @@ function WhyCardsStack({ items }) {
           {rightItems.map((item, i) => (
             <div
               key={item.title}
-              className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
+              className="flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
               style={{
-                opacity: hovered ? 1 : 0,
-                transform: hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-                transitionDelay: hovered ? `${0.3 + i * 0.15}s` : "0s",
+                opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
+                transform: typeof window !== "undefined" && window.innerWidth < 1024 ? "translateY(0) scale(1)" : (hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)"),
+                transitionDelay: typeof window !== "undefined" && window.innerWidth < 1024 ? "0s" : (hovered ? `${0.3 + i * 0.15}s` : "0s"),
               }}
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-600 text-white shadow-sm">
@@ -478,63 +479,70 @@ function CardDeckSpread({ cards }) {
   const stackLeft = (totalWidth - CARD_W) / 2;
 
   return (
-    <div className="flex justify-center pt-6">
-      <div
-        className="relative"
-        style={{ width: totalWidth, height: CARD_H + 40 }}
-      >
-        {cards.map((f, i) => {
-          const isHovered = hovered === i;
-          const left = spread ? (total - 1 - i) * OVERLAP : stackLeft;
-          const top = spread ? 0 : i * 2;
-          const blur = hovered !== null && !isHovered ? 2 : 0;
-          const delay = i * 0.08;
-
-          return (
-            <div
-              key={f.title}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                position: "absolute",
-                left,
-                top,
-                width: CARD_W,
-                height: CARD_H,
-                borderRadius: RADIUS,
-                boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-                background: "#fff",
-                zIndex: total - i + (isHovered ? 100 : 0),
-                overflow: "hidden",
-                cursor: "default",
-                transition: `left 0.7s cubic-bezier(0.25,0.8,0.25,1) ${delay}s, top 0.7s cubic-bezier(0.25,0.8,0.25,1) ${delay}s, transform ${isHovered ? '0.3s' : '0.4s'} cubic-bezier(0.25,0.8,0.25,1), filter ${isHovered ? '0.3s' : '0.4s'} cubic-bezier(0.25,0.8,0.25,1)`,
-                transform: isHovered ? "scale(1.08) translateY(-12px)" : "scale(1) translateY(0)",
-                filter: blur ? `blur(${blur}px)` : "none",
-                outline: isHovered ? "2px solid #06b6d4" : "none",
-              }}
-            >
-              {/* Card visual — matches Built For Your Role stakeholder style */}
-              <div className="relative flex h-full w-full flex-col p-6">
-                {/* Icon tile */}
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-600 text-2xl text-white shadow-sm">
-                  {f.icon}
-                </div>
-                {/* Number */}
-                {/* <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-cyan-500">
-                  {String(i + 1).padStart(2, "0")}
-                </span> */}
-                {/* Title */}
-                <h3 className="text-lg font-bold text-[#16244c]">
-                  {f.title}
-                </h3>
-                {/* Description */}
-                <p className="mt-2 text-sm leading-relaxed text-[#16244c]/60">
-                  {f.desc}
-                </p>
-              </div>
+    <div className="pt-6">
+      {/* Mobile view - vertical stack */}
+      <div className="flex flex-col gap-4 lg:hidden">
+        {cards.map((f, i) => (
+          <div
+            key={f.title}
+            className="flex flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <div className="mb-4 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-600 text-2xl text-white shadow-sm">
+              {f.icon}
             </div>
-          );
-        })}
+            <h3 className="text-lg font-bold text-[#16244c]">{f.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[#16244c]/60">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop view - animated spread */}
+      <div className="hidden lg:flex justify-center">
+        <div
+          className="relative"
+          style={{ width: totalWidth, height: CARD_H + 40 }}
+        >
+          {cards.map((f, i) => {
+            const isHovered = hovered === i;
+            const left = spread ? (total - 1 - i) * OVERLAP : stackLeft;
+            const top = spread ? 0 : i * 2;
+            const blur = hovered !== null && !isHovered ? 2 : 0;
+            const delay = i * 0.08;
+
+            return (
+              <div
+                key={f.title}
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  position: "absolute",
+                  left,
+                  top,
+                  width: CARD_W,
+                  height: CARD_H,
+                  borderRadius: RADIUS,
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+                  background: "#fff",
+                  zIndex: total - i + (isHovered ? 100 : 0),
+                  overflow: "hidden",
+                  cursor: "default",
+                  transition: `left 0.7s cubic-bezier(0.25,0.8,0.25,1) ${delay}s, top 0.7s cubic-bezier(0.25,0.8,0.25,1) ${delay}s, transform ${isHovered ? '0.3s' : '0.4s'} cubic-bezier(0.25,0.8,0.25,1), filter ${isHovered ? '0.3s' : '0.4s'} cubic-bezier(0.25,0.8,0.25,1)`,
+                  transform: isHovered ? "scale(1.08) translateY(-12px)" : "scale(1) translateY(0)",
+                  filter: blur ? `blur(${blur}px)` : "none",
+                  outline: isHovered ? "2px solid #06b6d4" : "none",
+                }}
+              >
+                <div className="relative flex h-full w-full flex-col p-6">
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-600 text-2xl text-white shadow-sm">
+                    {f.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-[#16244c]">{f.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#16244c]/60">{f.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -576,8 +584,8 @@ function Homepage() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-linear-to-b from-transparent to-[#f0f5fa]" />
 
         {/* ── Navbar ── */}
-        <header className="fixed z-20 mx-auto flex w-full items-center justify-between px-5 pt-6 sm:px-15">
-          <div className="flex items-center gap-2 whitespace-nowrap rounded-full bg-white/90 px-4 py-2.5 text-lg font-extrabold tracking-tight shadow-lg shadow-blue-900/10 ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:gap-2.5 sm:px-5 sm:text-2xl">
+        <header className="fixed z-20 mx-auto flex w-full items-center justify-between px-4 sm:px-5 pt-4 sm:pt-6">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 whitespace-nowrap rounded-full bg-white/90 px-3 sm:px-4 py-2 sm:py-2.5 text-base sm:text-lg font-extrabold tracking-tight shadow-lg shadow-blue-900/10 ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl lg:text-2xl">
             <PertLogo />
             <span className="flex items-center">
               Innovate
@@ -590,11 +598,11 @@ function Homepage() {
           <div className="ml-auto">
             <button
               onClick={() => setIsLoginOpen(true)}
-              className="bg-[linear-gradient(160deg,#e2e8f0_0%,#ffffff_100%)] border border-white/16 rounded-[24px] shadow-[-8px_-8px_24px_0px_rgb(255,255,255),8px_8px_24px_0px_rgba(136,164,191,0.4)] hover:shadow-[inset_8px_8px_24px_0px_rgba(136,164,191,0.4),inset_-8px_-8px_24px_0px_rgb(255,255,255)] hover:border-white/24 active:bg-[linear-gradient(135deg,#e2e8f0_0%,#ffffff_100%)] active:shadow-[inset_8px_8px_24px_0px_rgba(136,164,191,0.4),inset_-8px_-8px_24px_0px_rgb(255,255,255)] group relative cursor-pointer px-6 py-3 text-sm font-semibold text-slate-900 transition-all duration-200"
+              className="bg-[linear-gradient(160deg,#e2e8f0_0%,#ffffff_100%)] border border-white/16 rounded-[24px] shadow-[-8px_-8px_24px_0px_rgb(255,255,255),8px_8px_24px_0px_rgba(136,164,191,0.4)] hover:shadow-[inset_8px_8px_24px_0px_rgba(136,164,191,0.4),inset_-8px_-8px_24px_0px_rgb(255,255,255)] hover:border-white/24 active:bg-[linear-gradient(135deg,#e2e8f0_0%,#ffffff_100%)] active:shadow-[inset_8px_8px_24px_0px_rgba(136,164,191,0.4),inset_-8px_-8px_24px_0px_rgb(255,255,255)] group relative cursor-pointer px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-900 transition-all duration-200"
             >
-              <span className="relative z-10 flex items-center gap-2">
+              <span className="relative z-10 flex items-center gap-1 sm:gap-2">
                 Sign In
-                <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
+                <span className="text-sm sm:text-base transition-transform duration-300 group-hover:translate-x-1">
                   →
                 </span>
               </span>
@@ -603,15 +611,15 @@ function Homepage() {
         </header>
 
         {/* ── Hero content ── */}
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-10 pt-32 sm:px-7 lg:grid-cols-2 lg:gap-14 lg:pt-30">
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 sm:gap-12 px-5 pb-10 pt-28 sm:pt-32 lg:grid-cols-2 lg:gap-14 lg:pt-30">
           {/* Mockup column */}
           <div className="relative order-2 flex min-w-0 w-full justify-center">
             <ProjectNetworkModel />
           </div>
 
           {/* Text column */}
-          <div className="order-1 flex flex-col gap-7">
-            <h1 className="animate-text-in text-5xl font-extrabold leading-[1.20] tracking-tight text-white lg:text-4xl xl:text-5xl">
+          <div className="order-1 flex flex-col gap-5 sm:gap-7">
+            <h1 className="animate-text-in text-4xl sm:text-5xl font-extrabold leading-[1.20] tracking-tight text-white lg:text-5xl xl:text-6xl">
               <motion.span
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -778,7 +786,23 @@ function Homepage() {
 
       {/* ═══════════════ HOW IT WORKS ═══════════════ */}
       <section id="how" className="relative px-5 pb-24 sm:px-8">
-        {/* Expandable Interactive Cards */}
+        
+        {/* Mobile/Tablet fallback for How It Works */}
+        <div className="flex flex-col gap-6 lg:hidden max-w-3xl mx-auto mt-8">
+          {steps.map((s, i) => (
+            <div key={s.title} className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 flex flex-col items-start gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-600 text-white shadow-sm">
+                {s.icon}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[#16244c]">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#16244c]/60">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Expandable Interactive Cards (Desktop only) */}
         <div className="relative mx-auto mt-1 hidden h-82.5 max-w-6xl gap-5 lg:flex">
           {steps.map((s) => (
             <div
@@ -948,8 +972,8 @@ function Homepage() {
 
       {/* ═══════════════ METHOD STATS ═══════════════ */}
       <section className="px-5 pb-24 sm:px-9">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white px-3 py-5 shadow-sm ring-1 ring-slate-100 sm:px-1">
-          <div className="grid grid-cols-2 gap-30 text-center lg:grid-cols-3">
+        <div className="mx-auto max-w-4xl rounded-2xl bg-white px-3 py-8 sm:py-5 shadow-sm ring-1 ring-slate-100 sm:px-1">
+          <div className="grid grid-cols-1 gap-10 text-center sm:grid-cols-2 lg:grid-cols-3 lg:gap-30">
             {methodStats.map((m, index) => (
               <div
                 key={m.label}

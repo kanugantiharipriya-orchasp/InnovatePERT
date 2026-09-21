@@ -269,13 +269,13 @@ function AdminReports() {
 
       <main
         style={{ "--sidebar-w": open ? "16rem" : "5rem" }}
-        className={`relative z-10 flex-1 min-w-0 transition-all duration-300 p-6 lg:p-8 ${open ? "ml-64" : "ml-20"}`}
+        className={`relative z-10 flex-1 min-w-0 transition-all duration-300 p-4 sm:p-6 lg:p-8 ${open ? "lg:ml-64" : "lg:ml-20"}`}
       >
         {/* Top bar */}
         <div className="mb-5">
           <TopBar
-            title={<>R&D Director <span className="bg-[linear-gradient(92deg,#06b6d4_0%,#3b82f6_100%)] bg-clip-text text-transparent">Reports</span></>}
             subtitle={activeReportType ? "Configuring and exporting reports" : <>Analytics · PERT Risk Audits · Jasper Export Console</>}
+            onMenuClick={() => setOpen(!open)}
           />
         </div>
 

@@ -12,7 +12,13 @@ import {
   Download,
 } from "lucide-react";
 
-import { FaCheckCircle, FaFileExcel, FaSpinner, FaDownload } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaFileExcel,
+  FaSpinner,
+  FaDownload,
+  FaBars,
+} from "react-icons/fa";
 import AdminSidebar from "./AdminSidebar";
 import { projectManagerService } from "../../services/projectManagerService";
 import { projectService } from "../../services/projectService";
@@ -169,8 +175,8 @@ function ProjectManagers() {
 
       {/* Main Content Area */}
       <div
-        className={`relative z-10 flex-1 p-8 transition-all duration-300 overflow-x-hidden ${
-          isSidebarOpen ? "ml-64" : "ml-20"
+        className={`relative z-10 flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 overflow-x-hidden ${
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
         }`}
       >
         {/* Success Banner with Manual Close Option */}
@@ -195,7 +201,13 @@ function ProjectManagers() {
           </h1> */}
 
           <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 shadow-sm lg:hidden hover:text-sky-600 hover:bg-slate-50"
+            >
+              <FaBars size={18} />
+            </button>
+            <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl
               bg-linear-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-200">
               <Users size={20} />
             </div>

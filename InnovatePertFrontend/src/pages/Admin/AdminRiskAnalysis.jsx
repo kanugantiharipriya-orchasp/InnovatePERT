@@ -5,7 +5,8 @@ import {
   FaExclamationTriangle, FaCheckCircle, FaList,
   FaEye, FaSearch, FaTimes, FaShieldAlt,
   FaChartLine, FaCalendarAlt, FaUser,
-  FaChevronLeft, FaChevronRight,
+  FaChevronLeft, FaChevronRight, FaTimesCircle,
+  FaBars,
 } from "react-icons/fa";
 
 const API_BASE_URL =
@@ -218,13 +219,19 @@ export default function AdminRiskAnalysis() {
       <AdminSidebar open={open} setOpen={setOpen} />
       <main
         style={{ "--sidebar-w": open ? "16rem" : "5rem" }}
-        className={`relative z-10 flex-1 transition-all duration-300 p-6 lg:p-8 ${open ? "ml-64" : "ml-20"}`}
+        className={`relative z-10 flex-1 transition-all duration-300 p-4 sm:p-6 lg:p-8 ${open ? "lg:ml-64" : "lg:ml-20"}`}
       >
         <div key="risk-analysis">
         <div className="space-y-6">
 
       {/* ── Header ── */}
-      <div>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 shadow-sm lg:hidden hover:text-sky-600 hover:bg-slate-50"
+        >
+          <FaBars size={18} />
+        </button>
         <h1 className="text-2xl font-black tracking-tight text-slate-900">
           Risk Assessment{" "}
           <span className="bg-linear-to-r from-rose-500 to-orange-400 bg-clip-text text-transparent">

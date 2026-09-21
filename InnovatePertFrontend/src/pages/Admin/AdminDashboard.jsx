@@ -126,22 +126,21 @@ function AdminDashboard() {
 
       <main
         style={{ "--sidebar-w": open ? "16rem" : "5rem" }}
-        className={`relative z-10 flex-1 min-w-0 transition-all duration-300 p-6 lg:p-8 ${open ? "ml-64" : "ml-20"}`}
+        className={`relative z-10 flex-1 min-w-0 transition-all duration-300 p-4 sm:p-6 lg:p-8 ${open ? "lg:ml-64" : "lg:ml-20"}`}
       >
 
-        {/* Top bar — notifications, profile, logout (Dashboard page only) */}
-        {location.pathname === "/admin/dashboard" && (
-          <div className="mb-6">
-            <TopBar
-              title={<>R&D Director <span className="bg-[linear-gradient(92deg,#06b6d4_0%,#3b82f6_100%)] bg-clip-text text-transparent">Dashboard</span></>}
-              subtitle={`${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · Welcome back`}
-              userName="Administrator"
-              userRole="R&D Control Center"
-              profilePath="/admin/admin-profile"
-              onLogout={handleLogout}
-            />
-          </div>
-        )}
+        {/* Top bar — notifications, profile, logout (Always visible for mobile menu & logout) */}
+        <div className="mb-6">
+          <TopBar
+            title={<>R&D Director <span className="bg-[linear-gradient(92deg,#06b6d4_0%,#3b82f6_100%)] bg-clip-text text-transparent">Dashboard</span></>}
+            subtitle={`${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · Welcome back`}
+            userName="Administrator"
+            userRole="R&D Control Center"
+            profilePath="/admin/admin-profile"
+            onLogout={handleLogout}
+            onMenuClick={() => setOpen(!open)}
+          />
+        </div>
 
         {/* ── Section router ── */}
         {location.pathname === "/admin/projects" ? (

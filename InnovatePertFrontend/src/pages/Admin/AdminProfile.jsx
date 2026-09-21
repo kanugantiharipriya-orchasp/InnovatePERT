@@ -14,8 +14,8 @@ import {
   FaIdCard,
   FaShieldAlt,
   FaCalendarAlt,
-  FaCheckCircle,
   FaUserCircle,
+  FaBars,
 } from "react-icons/fa";
 import {
   validatePersonName,
@@ -446,15 +446,22 @@ function AdminProfile() {
       <main
         key="profile"
         style={{ "--sidebar-w": sidebarOpen ? "18rem" : "6rem" }}
-        className={`relative z-10 flex-1 p-5 transition-all duration-300 lg:p-8 ${
-          sidebarOpen ? "ml-72" : "ml-24"
+        className={`relative z-10 flex-1 p-4 sm:p-5 transition-all duration-300 lg:p-8 ${
+          sidebarOpen ? "lg:ml-72" : "lg:ml-24"
         }`}
       >
         {/* =========================================================
           PAGE HEADER
       ========================================================= */}
         <div className="mx-auto mb-8 max-w-6xl">
-          <div className="mb-2 flex items-center gap-2"></div>
+          <div className="mb-2 flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 shadow-sm lg:hidden hover:text-sky-600 hover:bg-slate-50"
+            >
+              <FaBars size={18} />
+            </button>
+          </div>
 
           <h1 className="text-3xl font-extrabold tracking-[-0.04em] text-slate-900 sm:text-4xl">
             <span className="text-sky-500">R&D Director</span>{" "}

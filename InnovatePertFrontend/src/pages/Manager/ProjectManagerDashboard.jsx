@@ -226,21 +226,20 @@ function ProjectManagerDashboard() {
 
       <main
         style={{ "--sidebar-w": open ? "16rem" : "5rem" }}
-        className={`relative z-10 flex-1 transition-all duration-300 p-6 lg:p-8 ${open ? "ml-64" : "ml-20"}`}
+        className={`relative z-10 flex-1 transition-all duration-300 p-4 sm:p-6 lg:p-8 ${open ? "lg:ml-64" : "lg:ml-20"}`}
       >
-        {/* Top bar is shown only on the Dashboard section */}
-        {activeSection === "dashboard" && (
-          <div className="mb-6">
-            <TopBar
-              title={<>Project Manager <span className="bg-[linear-gradient(92deg,#22d3ee_0%,#3b82f6_100%)] bg-clip-text text-transparent">Workspace</span></>}
-              subtitle={`${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · Welcome back`}
-              userName="Project Manager"
-              userRole="R&D Control Center"
-              profilePath="/project-manager/profile"
-              onLogout={handleLogout}
-            />
-          </div>
-        )}
+        {/* Top bar is shown on all pages for mobile menu and logout access */}
+        <div className="mb-6">
+          <TopBar
+            title={<>Project Manager <span className="bg-[linear-gradient(92deg,#22d3ee_0%,#3b82f6_100%)] bg-clip-text text-transparent">Workspace</span></>}
+            subtitle={`${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · Welcome back`}
+            userName="Project Manager"
+            userRole="R&D Control Center"
+            profilePath="/project-manager/profile"
+            onLogout={handleLogout}
+            onMenuClick={() => setOpen(!open)}
+          />
+        </div>
         <div key={activeSection} className="animate-[pageTurn_0.35s_ease-out]">
           {renderSection()}
         </div>

@@ -4,6 +4,7 @@ import {
   FaUserCircle,
   FaSignOutAlt,
   FaChevronDown,
+  FaBars,
 } from "react-icons/fa";
 
 function TopBar({
@@ -13,6 +14,7 @@ function TopBar({
   userRole = "",
   profilePath = "/",
   onLogout,
+  onMenuClick,
   flat = false,
 }) {
   const navigate = useNavigate();
@@ -53,13 +55,23 @@ function TopBar({
           : "rounded-2xl border border-slate-200 bg-white shadow-md shadow-sky-100/60"}`}
     >
       {/* ── Left: title block ── */}
-      <div className="min-w-0">
-        {title && (
-          <h1 className="truncate text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
-            {title}
-          </h1>
+      <div className="flex items-center gap-3 min-w-0">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="block lg:hidden text-slate-400 hover:text-sky-600 cursor-pointer transition-colors"
+          >
+            <FaBars size={20} />
+          </button>
         )}
-        {subtitle && <p className="truncate text-xs text-slate-400">{subtitle}</p>}
+        <div className="min-w-0">
+          {title && (
+            <h1 className="truncate text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+              {title}
+            </h1>
+          )}
+          {subtitle && <p className="truncate text-xs text-slate-400">{subtitle}</p>}
+        </div>
       </div>
 
       {/* ── Right: actions ── */}

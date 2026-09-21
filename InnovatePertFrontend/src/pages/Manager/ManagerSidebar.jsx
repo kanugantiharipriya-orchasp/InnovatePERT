@@ -39,17 +39,26 @@ function ManagerSidebar({ open, setOpen, activeSection }) {
   };
 
   return (
-    <aside
-      className={`fixed top-0 left-0 z-40 flex h-screen flex-col transition-all duration-300
-        bg-white border-r border-slate-200 shadow-2xl shadow-slate-200/50
-        ${open ? "w-64" : "w-20"}`}
-    >
+    <>
+      {/* ── Mobile Overlay ── */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed top-0 left-0 z-40 flex h-screen flex-col transition-all duration-300
+          bg-white border-r border-slate-200 shadow-2xl shadow-slate-200/50
+          ${open ? "w-64 translate-x-0" : "-translate-x-full lg:w-20 lg:translate-x-0"}`}
+      >
       {/* ── Collapse / expand toggle — floats on the sidebar's right edge ── */}
       <button
         onClick={() => setOpen(!open)}
         aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
         title={open ? "Collapse menu" : "Expand menu"}
-        className={`absolute top-7 z-50 flex h-8 w-8 items-center justify-center rounded-full
+        className={`absolute top-7 z-50 hidden lg:flex h-8 w-8 items-center justify-center rounded-full
           bg-white text-slate-500 border border-slate-200 shadow-md shadow-slate-200/70
           hover:text-cyan-600 hover:border-cyan-300 hover:shadow-cyan-200
           transition-all duration-300 cursor-pointer
@@ -150,6 +159,7 @@ function ManagerSidebar({ open, setOpen, activeSection }) {
         </button>
       </div>
     </aside>
+    </>
   );
 }
 
