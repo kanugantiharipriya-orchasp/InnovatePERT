@@ -352,8 +352,8 @@ function WhyCardsStack({ items }) {
 
   return (
     <div
-      className="mx-auto w-full max-w-3xl"
-      style={{ perspective: 600, height: CONTAINER_H }}
+      className="mx-auto w-full max-w-3xl lg:h-[260px]"
+      style={{ perspective: 600 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -402,24 +402,15 @@ function WhyCardsStack({ items }) {
 
       {/* ── Expanded grid (Desktop hover & Mobile default) ── */}
       <div
-        className="absolute inset-x-0 top-0 grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 lg:absolute lg:top-0"
-        style={{
-          opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
-          pointerEvents: typeof window !== "undefined" && window.innerWidth < 1024 ? "auto" : (hovered ? "auto" : "none"),
-          position: typeof window !== "undefined" && window.innerWidth < 1024 ? "relative" : "absolute"
-        }}
+        className={`inset-x-0 top-0 grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500 relative opacity-100 pointer-events-auto lg:absolute ${hovered ? 'lg:opacity-100 lg:pointer-events-auto' : 'lg:opacity-0 lg:pointer-events-none'}`}
       >
         {/* Left column — cards 0,1 appear first */}
         <div className="flex flex-col gap-4">
           {leftItems.map((item, i) => (
             <div
               key={item.title}
-              className="flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
-              style={{
-                opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
-                transform: typeof window !== "undefined" && window.innerWidth < 1024 ? "translateY(0) scale(1)" : (hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)"),
-                transitionDelay: typeof window !== "undefined" && window.innerWidth < 1024 ? "0s" : (hovered ? `${i * 0.15}s` : "0s"),
-              }}
+              className={`flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500 opacity-100 translate-y-0 scale-100 lg:translate-y-5 lg:scale-95 lg:opacity-0 ${hovered ? 'lg:opacity-100 lg:translate-y-0 lg:scale-100' : ''}`}
+              style={{ transitionDelay: hovered ? `${i * 0.15}s` : "0s" }}
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-600 text-white shadow-sm">
                 {item.icon}
@@ -437,12 +428,8 @@ function WhyCardsStack({ items }) {
           {rightItems.map((item, i) => (
             <div
               key={item.title}
-              className="flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500"
-              style={{
-                opacity: typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : (hovered ? 1 : 0),
-                transform: typeof window !== "undefined" && window.innerWidth < 1024 ? "translateY(0) scale(1)" : (hovered ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)"),
-                transitionDelay: typeof window !== "undefined" && window.innerWidth < 1024 ? "0s" : (hovered ? `${0.3 + i * 0.15}s` : "0s"),
-              }}
+              className={`flex items-start md:items-center gap-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-100 transition-all duration-500 opacity-100 translate-y-0 scale-100 lg:translate-y-5 lg:scale-95 lg:opacity-0 ${hovered ? 'lg:opacity-100 lg:translate-y-0 lg:scale-100' : ''}`}
+              style={{ transitionDelay: hovered ? `${0.3 + i * 0.15}s` : "0s" }}
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-600 text-white shadow-sm">
                 {item.icon}
@@ -786,6 +773,19 @@ function Homepage() {
 
       {/* ═══════════════ HOW IT WORKS ═══════════════ */}
       <section id="how" className="relative px-5 pb-24 sm:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-14 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-cyan-700">
+              How It Works
+            </span>
+            <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl text-gray-900">
+              <span className="text-cyan-600">4 Simple Steps</span> to clarity
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-[#16244c]/60">
+              From estimation to deployment, InnovatePERT guides you through a proven probabilistic process.
+            </p>
+          </div>
+        </div>
         
         {/* Mobile/Tablet fallback for How It Works */}
         <div className="flex flex-col gap-6 lg:hidden max-w-3xl mx-auto mt-8">

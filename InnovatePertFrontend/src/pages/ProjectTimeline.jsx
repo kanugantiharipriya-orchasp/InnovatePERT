@@ -76,7 +76,7 @@ function ProjectTimeline() {
       {/* ================= TIMELINE ================= */}
       {/* Horizontally scrollable on small screens instead of clipping */}
       <div className="overflow-x-auto">
-        <div className="relative min-w-187.5 px-5 pb-5">
+        <div className="relative min-w-[750px] px-5 pb-5">
         {/* Background Line */}
         <div
           className="

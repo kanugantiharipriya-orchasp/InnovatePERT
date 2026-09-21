@@ -16,6 +16,7 @@ import {
   FaCalendarAlt,
   FaUserCircle,
   FaBars,
+  FaCheckCircle,
 } from "react-icons/fa";
 import {
   validatePersonName,
