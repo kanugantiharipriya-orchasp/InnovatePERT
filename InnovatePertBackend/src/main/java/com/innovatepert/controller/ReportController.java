@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,10 +63,10 @@ public class ReportController {
     }
 
     @GetMapping("/project-managers/download/pdf")
-    public ResponseEntity<byte[]> downloadProjectManagersPdf(Authentication authentication) {
+    public ResponseEntity<Resource> downloadProjectManagersPdf(Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] pdfBytes = reportService.exportProjectManagersPdfByUserId(userId);
+            Resource pdfBytes = reportService.exportProjectManagersPdfByUserId(userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -79,10 +80,10 @@ public class ReportController {
     }
 
     @GetMapping("/project-managers/download/xlsx")
-    public ResponseEntity<byte[]> downloadProjectManagersExcel(Authentication authentication) {
+    public ResponseEntity<Resource> downloadProjectManagersExcel(Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] excelBytes = reportService.exportProjectManagersExcelByUserId(userId);
+            Resource excelBytes = reportService.exportProjectManagersExcelByUserId(userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
@@ -97,12 +98,12 @@ public class ReportController {
 
 
     @GetMapping("/complete-project/download/pdf")
-    public ResponseEntity<byte[]> downloadCompleteProjectPdf(
+    public ResponseEntity<Resource> downloadCompleteProjectPdf(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] pdfBytes = reportService.exportCompleteProjectPdfByUserId(projectId, userId);
+            Resource pdfBytes = reportService.exportCompleteProjectPdfByUserId(projectId, userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -115,12 +116,12 @@ public class ReportController {
     }
 
     @GetMapping("/complete-project/download/xlsx")
-    public ResponseEntity<byte[]> downloadCompleteProjectExcel(
+    public ResponseEntity<Resource> downloadCompleteProjectExcel(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] excelBytes = reportService.exportCompleteProjectExcelByUserId(projectId, userId);
+            Resource excelBytes = reportService.exportCompleteProjectExcelByUserId(projectId, userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
@@ -135,12 +136,12 @@ public class ReportController {
    
 
     @GetMapping("/risk-assessment/download/pdf")
-    public ResponseEntity<byte[]> downloadRiskAssessmentPdf(
+    public ResponseEntity<Resource> downloadRiskAssessmentPdf(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] pdfBytes = reportService.exportRiskAssessmentPdfByUserId(projectId, userId);
+            Resource pdfBytes = reportService.exportRiskAssessmentPdfByUserId(projectId, userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -153,12 +154,12 @@ public class ReportController {
     }
 
     @GetMapping("/risk-assessment/download/xlsx")
-    public ResponseEntity<byte[]> downloadRiskAssessmentExcel(
+    public ResponseEntity<Resource> downloadRiskAssessmentExcel(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] excelBytes = reportService.exportRiskAssessmentExcelByUserId(projectId, userId);
+            Resource excelBytes = reportService.exportRiskAssessmentExcelByUserId(projectId, userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
@@ -173,12 +174,12 @@ public class ReportController {
 
 
     @GetMapping("/project-crashing/download/pdf")
-    public ResponseEntity<byte[]> downloadProjectCrashingPdf(
+    public ResponseEntity<Resource> downloadProjectCrashingPdf(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] pdfBytes = reportService.exportProjectCrashingPdfByUserId(projectId, userId);
+            Resource pdfBytes = reportService.exportProjectCrashingPdfByUserId(projectId, userId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
@@ -191,12 +192,12 @@ public class ReportController {
     }
 
     @GetMapping("/project-crashing/download/xlsx")
-    public ResponseEntity<byte[]> downloadProjectCrashingExcel(
+    public ResponseEntity<Resource> downloadProjectCrashingExcel(
             @RequestParam Integer projectId,
             Authentication authentication) {
         try {
             Integer userId = getLoggedInUserId(authentication);
-            byte[] excelBytes = reportService.exportProjectCrashingExcelByUserId(projectId, userId);
+            Resource excelBytes = reportService.exportProjectCrashingExcelByUserId(projectId, userId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));

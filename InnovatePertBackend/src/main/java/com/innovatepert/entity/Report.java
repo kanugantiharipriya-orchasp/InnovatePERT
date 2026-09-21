@@ -56,8 +56,8 @@ public class Report {
     @Column(name = "generated_date", nullable = false, updatable = false)
     private LocalDateTime generatedDate;
 
-//    @Column(name = "file_path", length = 255)
-//    private String filePath;
+    @Column(name = "file_path", length = 255)
+    private String filePath;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

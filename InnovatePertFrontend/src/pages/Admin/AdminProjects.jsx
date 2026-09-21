@@ -842,7 +842,7 @@ function Projects() {
                 <div className="rounded-xl bg-slate-50 p-3">
                   <p className="text-xs font-semibold text-slate-400">Budget</p>
                   <p className="mt-0.5 font-bold text-slate-800">
-                    ${Number(viewModalProject.budget || 0).toLocaleString()}
+                    {Number(viewModalProject.budget || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3">

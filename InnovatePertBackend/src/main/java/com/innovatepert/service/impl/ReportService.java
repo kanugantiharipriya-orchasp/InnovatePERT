@@ -9,6 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +78,21 @@ public class ReportService {
     @Autowired
     private com.innovatepert.repository.ProjectCrashingRepository projectCrashingRepository;
 
+    @Value("${reports.storage.path:generated_reports}")
+    private String reportStoragePath;
+
+    @PostConstruct
+    public void init() {
+        try {
+            Path path = Paths.get(reportStoragePath);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create report storage directory", e);
+        }
+    }
+
     // Helper to fetch and validate the logged-in user entity
     private User getLoggedInUserEntity(Integer userId) {
         if (userId != null) {
@@ -99,7 +125,7 @@ public class ReportService {
         }
     }
 
-    private void saveReportAudit(User user, ReportType reportType, String format, ReportStatus status) {
+    private void saveReportAudit(User user, ReportType reportType, String format, ReportStatus status, String filePath) {
         if (user != null) {
             Report report = Report.builder()
                     .project(null)
@@ -107,12 +133,13 @@ public class ReportService {
                     .reportType(reportType)
                     .fileFormat(format)
                     .status(status)
+                    .filePath(filePath)
                     .build();
             reportAuditRepository.save(report);
         }
     }
 
-    private void saveReportAuditWithProject(User user, Project project, ReportType type, String format, ReportStatus status) {
+    private void saveReportAuditWithProject(User user, Project project, ReportType type, String format, ReportStatus status, String filePath) {
         if (user != null) {
             Report report = Report.builder()
                     .project(project)
@@ -120,13 +147,14 @@ public class ReportService {
                     .reportType(type)
                     .fileFormat(format)
                     .status(status)
+                    .filePath(filePath)
                     .build();
             reportAuditRepository.save(report);
         }
     }
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to PDF
-    private byte[] generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data) {
+    private Resource generatePdfFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String reportPrefix) {
         try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
             if (jrxmlStream == null) {
                 throw new RuntimeException("Jasper template not found in classpath: /" + jrxmlClasspath);
@@ -138,7 +166,12 @@ public class ReportService {
                     : new JRBeanCollectionDataSource(List.of());
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-            return JasperExportManager.exportReportToPdf(jasperPrint);
+            
+            String fileName = reportPrefix + ".pdf";
+            Path filePath = Paths.get(reportStoragePath, fileName);
+            JasperExportManager.exportReportToPdfFile(jasperPrint, filePath.toString());
+
+            return new UrlResource(filePath.toUri());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +180,7 @@ public class ReportService {
     }
 
     // Shared helper: compiles a jrxml from classpath resource, fills it, and exports to XLSX
-    private byte[] generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName) {
+    private Resource generateExcelFromStream(String jrxmlClasspath, Map<String, Object> parameters, List<?> data, String sheetName, String reportPrefix) {
         try (InputStream jrxmlStream = getClass().getResourceAsStream("/" + jrxmlClasspath)) {
             if (jrxmlStream == null) {
                 throw new RuntimeException("Jasper template not found in classpath: /" + jrxmlClasspath);
@@ -160,18 +193,22 @@ public class ReportService {
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            JRXlsxExporter exporter = new JRXlsxExporter();
-            exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteArrayOutputStream));
-
-            SimpleXlsxReportConfiguration reportConfig = new SimpleXlsxReportConfiguration();
-            reportConfig.setSheetNames(new String[]{sheetName});
-            reportConfig.setRemoveEmptySpaceBetweenRows(true);
-            exporter.setConfiguration(reportConfig);
-
-            exporter.exportReport();
-            return byteArrayOutputStream.toByteArray();
+            String fileName = reportPrefix + ".xlsx";
+            Path filePath = Paths.get(reportStoragePath, fileName);
+            
+            try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                JRXlsxExporter exporter = new JRXlsxExporter();
+                exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(fos));
+    
+                SimpleXlsxReportConfiguration reportConfig = new SimpleXlsxReportConfiguration();
+                reportConfig.setSheetNames(new String[]{sheetName});
+                reportConfig.setRemoveEmptySpaceBetweenRows(true);
+                exporter.setConfiguration(reportConfig);
+    
+                exporter.exportReport();
+            }
+            return new UrlResource(filePath.toUri());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -208,27 +245,31 @@ public class ReportService {
     public List<ProjectManagerReportDTO> getProjectManagersReportDataByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<ProjectManagerReportDTO> dtos = fetchProjectManagersReportData(user);
-        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "JSON", ReportStatus.GENERATED);
+        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "JSON", ReportStatus.GENERATED, null);
         return dtos;
     }
 
-    public byte[] exportProjectManagersPdfByUserId(Integer userId) {
+    public Resource exportProjectManagersPdfByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
-        byte[] pdf = generatePdfFromStream("reports/project_managers_report.jrxml", parameters, data);
-        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "PDF", ReportStatus.DOWNLOADED);
+        Resource pdf = generatePdfFromStream("reports/project_managers_report.jrxml", parameters, data, "project_managers");
+        String path = null;
+        try { path = pdf.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "PDF", ReportStatus.DOWNLOADED, path);
         return pdf;
     }
 
-    public byte[] exportProjectManagersExcelByUserId(Integer userId) {
+    public Resource exportProjectManagersExcelByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<ProjectManagerReportDTO> data = fetchProjectManagersReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Managers Overview Report");
-        byte[] excel = generateExcelFromStream("reports/project_managers_report.jrxml", parameters, data, "Project Managers Report");
-        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "XLSX", ReportStatus.DOWNLOADED);
+        Resource excel = generateExcelFromStream("reports/project_managers_report.jrxml", parameters, data, "Project Managers Report", "project_managers");
+        String path = null;
+        try { path = excel.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(user, ReportType.PROJECT_MANAGERS, "XLSX", ReportStatus.DOWNLOADED, path);
         return excel;
     }
 
@@ -303,7 +344,7 @@ public class ReportService {
         User requestingUser = getLoggedInUserEntity(userId);
         CompleteProjectReportDTO dto = fetchCompleteProjectReportData(projectId, requestingUser);
         Project project = projectRepository.findById(projectId).orElse(null);
-        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "JSON", ReportStatus.GENERATED);
+        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "JSON", ReportStatus.GENERATED, null);
         return dto;
     }
 
@@ -342,34 +383,38 @@ public class ReportService {
         }
     }
 
-    public byte[] exportCompleteProjectPdfByUserId(Integer projectId, Integer userId) throws Exception {
+    public Resource exportCompleteProjectPdfByUserId(Integer projectId, Integer userId) throws Exception {
         User requestingUser = getLoggedInUserEntity(userId);
         JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, requestingUser);
-        byte[] pdfBytes = JasperExportManager.exportReportToPdf(jasperPrint);
+        
+        String fileName = "complete_project_" + projectId + ".pdf";
+        Path path = Paths.get(reportStoragePath, fileName);
+        JasperExportManager.exportReportToPdfFile(jasperPrint, path.toString());
 
         Project project = projectRepository.findById(projectId).orElse(null);
-        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "PDF", ReportStatus.DOWNLOADED);
+        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "PDF", ReportStatus.DOWNLOADED, path.toString());
 
-        return pdfBytes;
+        return new UrlResource(path.toUri());
     }
 
-    public byte[] exportCompleteProjectExcelByUserId(Integer projectId, Integer userId) throws Exception {
+    public Resource exportCompleteProjectExcelByUserId(Integer projectId, Integer userId) throws Exception {
         User requestingUser = getLoggedInUserEntity(userId);
         JasperPrint jasperPrint = fillCompleteProjectJasperReport(projectId, requestingUser);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JRXlsxExporter exporter = new JRXlsxExporter();
-
-        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
-        exporter.exportReport();
-
-        byte[] excelBytes = outputStream.toByteArray();
+        String fileName = "complete_project_" + projectId + ".xlsx";
+        Path path = Paths.get(reportStoragePath, fileName);
+        
+        try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
+            JRXlsxExporter exporter = new JRXlsxExporter();
+            exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(fos));
+            exporter.exportReport();
+        }
 
         Project project = projectRepository.findById(projectId).orElse(null);
-        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "XLSX", ReportStatus.DOWNLOADED);
+        saveReportAuditWithProject(requestingUser, project, ReportType.COMPLETE_PROJECT, "XLSX", ReportStatus.DOWNLOADED, path.toString());
 
-        return excelBytes;
+        return new UrlResource(path.toUri());
     }
 
     // ==========================================
@@ -421,11 +466,11 @@ public class ReportService {
         User user = getLoggedInUserEntity(userId);
         RiskAssessmentReportDTO dto = fetchRiskAssessmentReportData(projectId, user);
         Project project = projectRepository.findById(projectId).orElse(null);
-        saveReportAuditWithProject(user, project, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED);
+        saveReportAuditWithProject(user, project, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED, null);
         return dto;
     }
 
-    public byte[] exportRiskAssessmentPdfByUserId(Integer projectId, Integer userId) {
+    public Resource exportRiskAssessmentPdfByUserId(Integer projectId, Integer userId) {
         User user = getLoggedInUserEntity(userId);
         RiskAssessmentReportDTO data = fetchRiskAssessmentReportData(projectId, user);
 
@@ -443,12 +488,14 @@ public class ReportService {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Risk Assessment Report - " + data.getProjectName());
-        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto));
-        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
+        Resource pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), "risk_assessment_" + projectId);
+        String path = null;
+        try { path = pdf.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED, path);
         return pdf;
     }
 
-    public byte[] exportRiskAssessmentExcelByUserId(Integer projectId, Integer userId) {
+    public Resource exportRiskAssessmentExcelByUserId(Integer projectId, Integer userId) {
         User user = getLoggedInUserEntity(userId);
         RiskAssessmentReportDTO data = fetchRiskAssessmentReportData(projectId, user);
 
@@ -466,8 +513,10 @@ public class ReportService {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Risk Assessment Report - " + data.getProjectName());
-        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), "Risk Assessment Report");
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED);
+        Resource excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, List.of(pDto), "Risk Assessment Report", "risk_assessment_" + projectId);
+        String path = null;
+        try { path = excel.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED, path);
         return excel;
     }
 
@@ -517,27 +566,31 @@ public class ReportService {
     public List<PortfolioRiskReportDTO> getPortfolioRiskReportDataByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<PortfolioRiskReportDTO> portfolioList = fetchPortfolioRiskReportData(user);
-        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED);
+        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "JSON", ReportStatus.GENERATED, null);
         return portfolioList;
     }
 
-    public byte[] exportPortfolioRiskPdfByUserId(Integer userId) {
+    public Resource exportPortfolioRiskPdfByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
-        byte[] pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, data);
-        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED);
+        Resource pdf = generatePdfFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "portfolio_risk");
+        String path = null;
+        try { path = pdf.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(user, ReportType.RISK_ASSESSMENT, "PDF", ReportStatus.DOWNLOADED, path);
         return pdf;
     }
 
-    public byte[] exportPortfolioRiskExcelByUserId(Integer userId) {
+    public Resource exportPortfolioRiskExcelByUserId(Integer userId) {
         User user = getLoggedInUserEntity(userId);
         List<PortfolioRiskReportDTO> data = fetchPortfolioRiskReportData(user);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Portfolio-Wide Risk Assessment Report");
-        byte[] excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "Portfolio Risk Report");
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED);
+        Resource excel = generateExcelFromStream("reports/portfolio_risk_report.jrxml", parameters, data, "Portfolio Risk Report", "portfolio_risk");
+        String path = null;
+        try { path = excel.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(getLoggedInUserEntity(userId), ReportType.RISK_ASSESSMENT, "XLSX", ReportStatus.DOWNLOADED, path);
         return excel;
     }
 
@@ -617,27 +670,31 @@ public class ReportService {
     public com.innovatepert.dto.ProjectCrashingReportDTO getProjectCrashingReportDataByUserId(Integer projectId, Integer userId) {
         User requestingUser = getLoggedInUserEntity(userId);
         com.innovatepert.dto.ProjectCrashingReportDTO dto = fetchProjectCrashingReportData(projectId, requestingUser);
-        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "JSON", ReportStatus.GENERATED);
+        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "JSON", ReportStatus.GENERATED, null);
         return dto;
     }
 
-    public byte[] exportProjectCrashingPdfByUserId(Integer projectId, Integer userId) {
+    public Resource exportProjectCrashingPdfByUserId(Integer projectId, Integer userId) {
         User requestingUser = getLoggedInUserEntity(userId);
         com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
-        byte[] pdf = generatePdfFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities());
-        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "PDF", ReportStatus.DOWNLOADED);
+        Resource pdf = generatePdfFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "project_crashing_" + projectId);
+        String path = null;
+        try { path = pdf.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(requestingUser, ReportType.PROJECT_CRASHING, "PDF", ReportStatus.DOWNLOADED, path);
         return pdf;
     }
 
-    public byte[] exportProjectCrashingExcelByUserId(Integer projectId, Integer userId) {
+    public Resource exportProjectCrashingExcelByUserId(Integer projectId, Integer userId) {
         User requestingUser = getLoggedInUserEntity(userId);
         com.innovatepert.dto.ProjectCrashingReportDTO data = fetchProjectCrashingReportData(projectId, requestingUser);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("title", "Project Crashing Report - " + data.getProjectName());
-        byte[] excel = generateExcelFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "Project Crashing Report");
-        saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_CRASHING, "XLSX", ReportStatus.DOWNLOADED);
+        Resource excel = generateExcelFromStream("reports/project_crashing_report.jrxml", parameters, data.getActivities(), "Project Crashing Report", "project_crashing_" + projectId);
+        String path = null;
+        try { path = excel.getFile().getAbsolutePath(); } catch (Exception e) {}
+        saveReportAudit(getLoggedInUserEntity(userId), ReportType.PROJECT_CRASHING, "XLSX", ReportStatus.DOWNLOADED, path);
         return excel;
     }
 }

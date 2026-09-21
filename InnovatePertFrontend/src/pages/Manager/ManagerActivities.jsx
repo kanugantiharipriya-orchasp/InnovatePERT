@@ -22,7 +22,7 @@ import ManagerDependencies from "./ManagerDependencies";
 import { handleTextInput, handleNumberInput, blockInvalidNumberKeys } from "../../utils/validation";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
+  import.meta.env.VITE_API_BASE_URL || "http://10.168.111.10:8080";
 
 // Handles every common Spring Boot response shape
 const normalizeList = (data) => {
@@ -784,7 +784,7 @@ function ManagerActivities() {
         const isExceeded = totalExpected > targetDays;
 
         return (
-          <div className="mb-6 rounded-3xl p-5 shadow-xs bg-white border border-slate-200/95 shadow-[0_16px_40px_-18px_rgba(2,132,199,0.14),0_2px_6px_-2px_rgba(2,132,199,0.06)]">
+          <div className="mb-6 rounded-3xl p-5 bg-white border border-slate-200/95 shadow-[0_16px_40px_-18px_rgba(2,132,199,0.14),0_2px_6px_-2px_rgba(2,132,199,0.06)]">
             <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-semibold">
               <div className="flex items-center gap-2">
                 <FaClock className="text-blue-500 h-4 w-4" />
@@ -1064,37 +1064,38 @@ function ManagerActivities() {
                     </label>
                   ))}
                 </div>
-                {/* Predecessor Activity Selector */}
-                <div className="mt-3">
-                  <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Predecessor Activity (Optional - Must finish before this activity can start)
-                  </label>
-                  <select
-                    name="predecessorActivityId"
-                    value={formData.predecessorActivityId || formData.dependencyActivityId}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFormData((prev) => ({
-                        ...prev,
-                        predecessorActivityId: val,
-                        dependencyActivityId: val,
-                        dependencyType: val ? "HAS_DEPENDENCY" : "NO_DEPENDENCY",
-                      }));
-                    }}
-                    disabled={saving}
-                    className="w-full rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 transition-all duration-200 focus:bg-white focus:border-sky-400/80 focus:shadow-[0_0_0_4px_rgba(56,189,248,0.16)] focus:outline-none disabled:opacity-60 cursor-pointer"
-                  >
-                    <option value="">No Predecessor (Can start immediately)</option>
-                    {activities.map((a) => (
-                      <option
-                        key={a.activityId ?? a.id}
-                        value={a.activityId ?? a.id}
-                      >
-                        {a.activityName} ({a.status})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {formData.dependencyType === "HAS_DEPENDENCY" && (
+                  <div className="mt-3">
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Predecessor Activity (Optional - Must finish before this activity can start)
+                    </label>
+                    <select
+                      name="predecessorActivityId"
+                      value={formData.predecessorActivityId || formData.dependencyActivityId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          predecessorActivityId: val,
+                          dependencyActivityId: val,
+                          dependencyType: val ? "HAS_DEPENDENCY" : "NO_DEPENDENCY",
+                        }));
+                      }}
+                      disabled={saving}
+                      className="w-full rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 transition-all duration-200 focus:bg-white focus:border-sky-400/80 focus:shadow-[0_0_0_4px_rgba(56,189,248,0.16)] focus:outline-none disabled:opacity-60 cursor-pointer"
+                    >
+                      <option value="">No Predecessor (Can start immediately)</option>
+                      {activities.map((a) => (
+                        <option
+                          key={a.activityId ?? a.id}
+                          value={a.activityId ?? a.id}
+                        >
+                          {a.activityName} ({a.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-3 border-t border-slate-100/70 pt-5">
@@ -1528,36 +1529,37 @@ function ManagerActivities() {
                 </div>
               </div>
 
-              {/* Predecessor Activity Selector */}
-              <div className="mt-4 rounded-xl bg-white border border-slate-200/90 shadow-[0_8px_24px_-14px_rgba(2,132,199,0.1),0_1px_3px_-1px_rgba(2,132,199,0.05)] p-4">
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">
-                  Predecessor Activity (Optional)
-                </label>
-                <select
-                  name="predecessorActivityId"
-                  value={editData.predecessorActivityId || editData.dependencyActivityId}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setEditData((prev) => ({
-                      ...prev,
-                      predecessorActivityId: val,
-                      dependencyActivityId: val,
-                      dependencyType: val ? "HAS_DEPENDENCY" : "NO_DEPENDENCY",
-                    }));
-                  }}
-                  disabled={updating}
-                  className="w-full cursor-pointer rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 transition-all duration-200 focus:bg-white focus:border-sky-400/80 focus:shadow-[0_0_0_4px_rgba(56,189,248,0.16)] focus:outline-none disabled:opacity-60"
-                >
-                  <option value="">No Predecessor (Can start immediately)</option>
-                  {activities
-                    .filter((a) => String(a.activityId ?? a.id) !== String(editData.activityId))
-                    .map((a) => (
-                      <option key={a.activityId ?? a.id} value={a.activityId ?? a.id}>
-                        {a.activityName} ({a.status})
-                      </option>
-                    ))}
-                </select>
-              </div>
+              {editData.dependencyType === "HAS_DEPENDENCY" && (
+                <div className="mt-4 rounded-xl bg-white border border-slate-200/90 shadow-[0_8px_24px_-14px_rgba(2,132,199,0.1),0_1px_3px_-1px_rgba(2,132,199,0.05)] p-4">
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">
+                    Predecessor Activity (Optional)
+                  </label>
+                  <select
+                    name="predecessorActivityId"
+                    value={editData.predecessorActivityId || editData.dependencyActivityId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditData((prev) => ({
+                        ...prev,
+                        predecessorActivityId: val,
+                        dependencyActivityId: val,
+                        dependencyType: val ? "HAS_DEPENDENCY" : "NO_DEPENDENCY",
+                      }));
+                    }}
+                    disabled={updating}
+                    className="w-full cursor-pointer rounded-lg bg-white border border-slate-200 px-4 py-2.5 text-sm text-slate-800 transition-all duration-200 focus:bg-white focus:border-sky-400/80 focus:shadow-[0_0_0_4px_rgba(56,189,248,0.16)] focus:outline-none disabled:opacity-60"
+                  >
+                    <option value="">No Predecessor (Can start immediately)</option>
+                    {activities
+                      .filter((a) => String(a.activityId ?? a.id) !== String(editData.activityId))
+                      .map((a) => (
+                        <option key={a.activityId ?? a.id} value={a.activityId ?? a.id}>
+                          {a.activityName} ({a.status})
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
 
               {/* Footer */}
               <div className="mt-6 flex justify-end gap-3 border-t border-slate-100/70 pt-5">
@@ -1584,7 +1586,7 @@ function ManagerActivities() {
 
       {/* ── Data Table ── */}
       <div className="overflow-x-auto rounded-3xl bg-white border border-slate-200/95 shadow-[0_16px_40px_-18px_rgba(2,132,199,0.14),0_2px_6px_-2px_rgba(2,132,199,0.06)]">
-        <table className="w-full min-w-[900px] text-sm">
+        <table className="w-full min-w-225 text-sm">
           <thead className="[&_th]:bg-[linear-gradient(92deg,#eff6ff,#dbeafe)] [&_th]:text-blue-700 [&_th]:font-bold [&_th]:tracking-[0.04em] [&_th]:uppercase [&_th]:text-[0.72rem] [&_th]:border-none">
             <tr className="text-left">
               <th className="px-6 py-4">Activity Name</th>
