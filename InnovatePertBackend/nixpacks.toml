@@ -1,5 +1,5 @@
 [phases.setup]
-aptPkgs = ["...", "fontconfig", "libfreetype6", "fonts-dejavu", "fonts-dejavu-core"]
+aptPkgs = ["fontconfig", "libfreetype6", "fonts-dejavu", "fonts-dejavu-core"]
 
 [variables]
 # Highly aggressive memory constraints for Railway Free Tier (500MB RAM)
