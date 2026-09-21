@@ -13,9 +13,10 @@ RUN apt-get update && \
     fc-cache -f -v && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /app/target/*.jar app.jar
+RUN mkdir target
+COPY --from=build /app/target/*.jar target/app.jar
 
 ENV JAVA_TOOL_OPTIONS="-Xms128m -Xmx256m -Djava.awt.headless=true -Djava.io.tmpdir=/tmp"
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "target/app.jar"]
