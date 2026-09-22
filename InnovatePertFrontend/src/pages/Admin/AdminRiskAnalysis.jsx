@@ -219,7 +219,7 @@ export default function AdminRiskAnalysis() {
       <AdminSidebar open={open} setOpen={setOpen} />
       <main
         style={{ "--sidebar-w": open ? "16rem" : "5rem" }}
-        className={`relative z-10 flex-1 transition-all duration-300 p-4 sm:p-6 lg:p-8 ${open ? "lg:ml-64" : "lg:ml-20"}`}
+        className={`relative z-10 flex-1 transition-all duration-300 p-4 sm:p-6 lg:p-8 overflow-x-hidden ${open ? "lg:ml-64" : "lg:ml-20"}`}
       >
         <div key="risk-analysis">
         <div className="space-y-6">
