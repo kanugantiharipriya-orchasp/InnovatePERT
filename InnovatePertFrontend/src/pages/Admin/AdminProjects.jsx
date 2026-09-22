@@ -138,6 +138,27 @@ function Projects() {
   const [managers, setManagers] = useState([]);
   const [managersLoaded, setManagersLoaded] = useState(false);
 
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    isDanger: false,
+    onConfirm: () => {},
+  });
+
+  const confirmAction = (title, message, isDanger, onConfirm) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      isDanger,
+      onConfirm: async () => {
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+        await onConfirm();
+      },
+    });
+  };
+
   const handleOpenTransferModal = async (project) => {
     setTransferModalProject(project);
     if (!managersLoaded) {
@@ -356,76 +377,91 @@ function Projects() {
   };
 
   const deleteProject = async (id) => {
-    if (!window.confirm("Delete this project?")) return;
+    confirmAction(
+      "Delete Project",
+      "Are you sure you want to delete this project?",
+      true,
+      async () => {
+        const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+          if (!response.ok) {
+            throw new Error("Unable to delete project");
+          }
 
-      if (!response.ok) {
-        throw new Error("Unable to delete project");
+          await fetchProjects(activeTab);
+        } catch (err) {
+          console.error(err);
+          setError(err instanceof Error ? err.message : "Unable to delete project");
+        }
       }
-
-      await fetchProjects(activeTab);
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : "Unable to delete project");
-    }
+    );
   };
 
   const restoreProject = async (id) => {
-    if (!window.confirm("Restore this project to Active status?")) return;
+    confirmAction(
+      "Restore Project",
+      "Are you sure you want to restore this project to Active status?",
+      false,
+      async () => {
+        const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}/restore`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}/restore`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+          if (!response.ok) {
+            throw new Error("Unable to restore project");
+          }
 
-      if (!response.ok) {
-        throw new Error("Unable to restore project");
+          await fetchProjects(activeTab);
+        } catch (err) {
+          console.error(err);
+          setError(err instanceof Error ? err.message : "Unable to restore project");
+        }
       }
-
-      await fetchProjects(activeTab);
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : "Unable to restore project");
-    }
+    );
   };
 
   const permanentlyDeleteProject = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently delete this project? This action cannot be undone.")) return;
+    confirmAction(
+      "Permanently Delete Project",
+      "Are you sure you want to permanently delete this project? This action cannot be undone.",
+      true,
+      async () => {
+        const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}/permanent`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/projects/${id}/permanent`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+          if (!response.ok) {
+            throw new Error("Unable to permanently delete project");
+          }
 
-      if (!response.ok) {
-        throw new Error("Unable to permanently delete project");
+          await fetchProjects(activeTab);
+        } catch (err) {
+          console.error(err);
+          setError(err instanceof Error ? err.message : "Unable to permanently delete project");
+        }
       }
-
-      await fetchProjects(activeTab);
-    } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : "Unable to permanently delete project");
-    }
+    );
   };
 
   // ── Content ────────────────────────────────────────────────
@@ -927,6 +963,39 @@ function Projects() {
           fetchProjects(activeTab);
         }}
       />
+      {/* Confirmation Modal */}
+      {confirmConfig.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-700/18 backdrop-blur-[6px]">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+            <div className={`border-b border-slate-100 px-6 py-5 ${confirmConfig.isDanger ? 'bg-rose-50' : 'bg-slate-50'}`}>
+              <h3 className={`text-lg font-black ${confirmConfig.isDanger ? 'text-rose-600' : 'text-slate-800'}`}>
+                {confirmConfig.title}
+              </h3>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-slate-600">{confirmConfig.message}</p>
+            </div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4">
+              <button
+                onClick={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
+                className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmConfig.onConfirm}
+                className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition ${
+                  confirmConfig.isDanger
+                    ? "bg-rose-500 hover:bg-rose-600 shadow-rose-200"
+                    : "bg-sky-500 hover:bg-sky-600 shadow-sky-200"
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
