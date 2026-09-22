@@ -474,7 +474,7 @@ function AdminReports() {
                   </div>
 
                   {/* PDF preview */}
-                  <div className="w-full bg-slate-100" style={{ height: "65vh", minHeight: "500px" }}>
+                  <div className="w-full bg-slate-100 hidden md:block" style={{ height: "65vh", minHeight: "500px" }}>
                     {previewLoading ? (
                       <div className="flex items-center justify-center h-full">
                         <FaSpinner className="animate-spin text-blue-600 text-2xl" />
@@ -486,6 +486,12 @@ function AdminReports() {
                         Failed to load PDF preview.
                       </div>
                     )}
+                  </div>
+                  {/* Mobile fallback for preview */}
+                  <div className="md:hidden flex flex-col items-center justify-center bg-slate-50 border-y border-slate-200 p-8 text-center">
+                    <FaFilePdf className="text-slate-300 text-4xl mb-3" />
+                    <p className="text-sm font-semibold text-slate-700">Preview not supported on mobile</p>
+                    <p className="text-xs text-slate-500 mt-1">Please use the buttons below to download the report.</p>
                   </div>
 
                   {/* Download actions */}
@@ -548,7 +554,7 @@ function AdminReports() {
                 </div>
 
                 {/* PDF preview */}
-                <div className="w-full bg-slate-100" style={{ height: "65vh", minHeight: "500px" }}>
+                <div className="w-full bg-slate-100 hidden md:block" style={{ height: "65vh", minHeight: "500px" }}>
                   {previewLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <FaSpinner className="animate-spin text-blue-600 text-2xl" />
@@ -560,6 +566,12 @@ function AdminReports() {
                       Failed to load PDF preview.
                     </div>
                   )}
+                </div>
+                {/* Mobile fallback for preview */}
+                <div className="md:hidden flex flex-col items-center justify-center bg-slate-50 border-y border-slate-200 p-8 text-center">
+                  <FaFilePdf className="text-slate-300 text-4xl mb-3" />
+                  <p className="text-sm font-semibold text-slate-700">Preview not supported on mobile</p>
+                  <p className="text-xs text-slate-500 mt-1">Please use the buttons below to download the report.</p>
                 </div>
 
                 {/* Download actions */}
@@ -650,7 +662,7 @@ function AdminReports() {
                   </div>
 
                   {/* PDF preview */}
-                  <div className="w-full bg-slate-100" style={{ height: "65vh", minHeight: "500px" }}>
+                  <div className="w-full bg-slate-100 hidden md:block" style={{ height: "65vh", minHeight: "500px" }}>
                     {previewLoading ? (
                       <div className="flex items-center justify-center h-full">
                         <FaSpinner className="animate-spin text-amber-600 text-2xl" />
@@ -662,6 +674,12 @@ function AdminReports() {
                         Failed to load PDF preview.
                       </div>
                     )}
+                  </div>
+                  {/* Mobile fallback for preview */}
+                  <div className="md:hidden flex flex-col items-center justify-center bg-slate-50 border-y border-slate-200 p-8 text-center">
+                    <FaFilePdf className="text-slate-300 text-4xl mb-3" />
+                    <p className="text-sm font-semibold text-slate-700">Preview not supported on mobile</p>
+                    <p className="text-xs text-slate-500 mt-1">Please use the buttons below to download the report.</p>
                   </div>
 
                   {/* Download actions */}
