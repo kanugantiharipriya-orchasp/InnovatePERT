@@ -76,10 +76,11 @@ public class ProjectServiceImpl implements ProjectService {
             throw new AccessDeniedException("Access Denied: Unauthenticated user.");
         }
         if (user.getRole() == Role.ADMIN) {
+            boolean isUnassigned = project.getAssignedTo() == null && project.getAssignedBy() == null;
             boolean isAssignedBy = project.getAssignedBy() != null && project.getAssignedBy().getUserId().equals(user.getUserId());
             boolean isAssigneeCreatedByAdmin = project.getAssignedTo() != null && project.getAssignedTo().getCreatedByAdmin() != null && project.getAssignedTo().getCreatedByAdmin().getUserId().equals(user.getUserId());
 
-            if (!isAssignedBy && !isAssigneeCreatedByAdmin) {
+            if (!isUnassigned && !isAssignedBy && !isAssigneeCreatedByAdmin) {
                 log.error("SECURITY ALERT: Admin ID {} attempted unauthorized access to Project ID {}", user.getUserId(), project.getProjectId());
                 throw new AccessDeniedException("Access Denied: You do not have permission to access projects outside your organization scope.");
             }
@@ -185,7 +186,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.setStatus(ProjectStatus.NOT_STARTED);
         } else {
             project.setAssignedTo(null);
-            project.setAssignedBy(null);
+            project.setAssignedBy(loggedInUser);
             project.setStatus(ProjectStatus.NOT_STARTED);
         }
 
