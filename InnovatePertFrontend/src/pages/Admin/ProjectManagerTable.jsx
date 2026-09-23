@@ -233,7 +233,7 @@ function ProjectManagerTable({
 
                       {/* Secondary Actions */}
                       <div className="flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white p-1 shadow-sm">
-                        {manager.status === "ACTIVE" ? (
+                        {manager.status === "ACTIVE" && (
                           <button
                             onClick={() => onToggleStatus && onToggleStatus(manager, "INACTIVE")}
                             className="p-2 text-slate-400 transition-all duration-200 hover:scale-110 hover:bg-amber-50 hover:text-amber-500 cursor-pointer"
@@ -241,7 +241,9 @@ function ProjectManagerTable({
                           >
                             <FaUserMinus size={15} />
                           </button>
-                        ) : (
+                        )}
+
+                        {manager.status === "INACTIVE" && (
                           <button
                             onClick={() => onToggleStatus && onToggleStatus(manager, "ACTIVE")}
                             className="p-2 text-slate-400 transition-all duration-200 hover:scale-110 hover:bg-emerald-50 hover:text-emerald-500 cursor-pointer"

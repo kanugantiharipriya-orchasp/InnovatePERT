@@ -202,6 +202,10 @@ public class ProjectManagerServiceImpl implements ProjectManagerService {
 		// Verify ownership before changing status
 		verifyManagerOwnership(user, loggedInDirector);
 
+		if (user.getStatus() == Status.DELETED) {
+			throw new BadRequestException("Cannot change status of a deleted Project Manager.");
+		}
+
 		user.setStatus(newStatus);
 		userRepository.save(user);
 		log.info("Changed status of Project Manager ID: {} to {} by Director ID: {}", id, newStatus, loggedInDirector.getUserId());
