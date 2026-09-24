@@ -19,7 +19,7 @@ public interface ProjectManagerService {
     // STATE MANAGEMENT
     void activateProjectManager(Integer id);
     void deactivateProjectManager(Integer id);
-    void softDeleteProjectManager(Integer id);
+    void deleteProjectManager(Integer id);
     
  // SEARCH & FILTER
     List<ProjectManagerResponse> searchProjectManagers(String keyword);

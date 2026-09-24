@@ -82,11 +82,11 @@ public class ProjectManagerController {
         return new ResponseEntity<>("Project Manager deactivated successfully.", HttpStatus.OK);
     }
 
-    // HTTP DELETE is mapped to our Soft Delete logic
+    // HTTP DELETE is mapped to our complete delete logic
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> softDeleteProjectManager(@PathVariable Integer id) {
-        log.info("Received request to soft delete Project Manager ID: {}", id);
-        projectManagerService.softDeleteProjectManager(id);
+    public ResponseEntity<String> deleteProjectManager(@PathVariable Integer id) {
+        log.info("Received request to completely delete Project Manager ID: {}", id);
+        projectManagerService.deleteProjectManager(id);
         return new ResponseEntity<>("Project Manager deleted successfully.", HttpStatus.OK);
     }
     

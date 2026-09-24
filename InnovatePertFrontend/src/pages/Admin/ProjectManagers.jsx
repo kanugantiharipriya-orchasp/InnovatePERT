@@ -414,7 +414,7 @@ function ProjectManagers() {
             setSelectedManager(manager);
             setIsEditModalOpen(true);
           }}
-          onSoftDelete={(manager) => {
+          onDelete={(manager) => {
             setSelectedManager(manager);
             setIsDeleteModalOpen(true);
           }}

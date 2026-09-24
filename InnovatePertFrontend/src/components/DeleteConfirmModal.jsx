@@ -12,7 +12,7 @@ function DeleteConfirmModal({ isOpen, onClose, manager, onSuccess }) {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await projectManagerService.softDelete(manager.userId);
+      await projectManagerService.deleteManager(manager.userId);
       onSuccess();
       onClose();
     } catch (err) {

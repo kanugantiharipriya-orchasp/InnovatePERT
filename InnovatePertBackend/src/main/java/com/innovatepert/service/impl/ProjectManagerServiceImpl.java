@@ -189,8 +189,16 @@ public class ProjectManagerServiceImpl implements ProjectManagerService {
 
 	@Override
 	@Transactional
-	public void softDeleteProjectManager(Integer id) {
-		changeUserStatus(id, Status.DELETED);
+	public void deleteProjectManager(Integer id) {
+		User loggedInDirector = getLoggedInDirector();
+
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project Manager not found with ID: " + id));
+
+		// Verify ownership before deleting
+		verifyManagerOwnership(user, loggedInDirector);
+
+		userRepository.delete(user);
 	}
 
 	private void changeUserStatus(Integer id, Status newStatus) {

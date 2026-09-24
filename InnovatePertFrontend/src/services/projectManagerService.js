@@ -65,7 +65,7 @@ activate: async (id) => {
   }
 },
 
-  softDelete: async (id) => {
+  deleteManager: async (id) => {
     try {
       const response = await apiClient.delete(`/${id}`);
       return response.data;

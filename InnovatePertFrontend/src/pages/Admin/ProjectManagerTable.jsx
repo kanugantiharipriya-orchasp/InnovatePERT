@@ -20,7 +20,7 @@ function ProjectManagerTable({
   onAssignProject,
   onEdit,
   onToggleStatus,
-  onSoftDelete,
+  onDelete,
 }) {
   // Client-Side Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -263,7 +263,7 @@ function ProjectManagerTable({
 
                         {manager.status !== "DELETED" && (
                           <button
-                            onClick={() => onSoftDelete && onSoftDelete(manager)}
+                            onClick={() => onDelete && onDelete(manager)}
                             className="p-2 text-slate-400 transition-all duration-200 hover:scale-110 hover:bg-rose-50 hover:text-rose-500 cursor-pointer"
                             title="Delete"
                           >
